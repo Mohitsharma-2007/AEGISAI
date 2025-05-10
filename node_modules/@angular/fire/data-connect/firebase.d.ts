@@ -1,0 +1,12 @@
+export * from 'firebase/data-connect';
+import { connectDataConnectEmulator as _connectDataConnectEmulator, executeMutation as _executeMutation, executeQuery as _executeQuery, getDataConnect as _getDataConnect, mutationRef as _mutationRef, queryRef as _queryRef, setLogLevel as _setLogLevel, subscribe as _subscribe, terminate as _terminate, toQueryRef as _toQueryRef } from 'firebase/data-connect';
+export declare const connectDataConnectEmulator: typeof _connectDataConnectEmulator;
+export declare const executeMutation: typeof _executeMutation;
+export declare const executeQuery: typeof _executeQuery;
+export declare const getDataConnect: typeof _getDataConnect;
+export declare const mutationRef: typeof _mutationRef;
+export declare const queryRef: typeof _queryRef;
+export declare const setLogLevel: typeof _setLogLevel;
+export declare const subscribe: typeof _subscribe;
+export declare const terminate: typeof _terminate;
+export declare const toQueryRef: typeof _toQueryRef;

@@ -1,0 +1,23 @@
+[
+  {"id":1, "name":"Hidden Field Trap", "desc":"Invisible input field. Bots may fill it, humans won't.", "demo":"Fills hidden field on form"},
+  {"id":2, "name":"Fake Button Trap", "desc":"Looks like a real button, but only bots click it.", "demo":"Clicks fake button"},
+  {"id":3, "name":"Recursive Form Trap", "desc":"Hidden form inside another form. Bots may submit both.", "demo":"Submits nested form"},
+  {"id":4, "name":"Randomized CAPTCHA Trap", "desc":"CAPTCHA with random logic. Bots may fail to solve it.", "demo":"Fails random CAPTCHA"},
+  {"id":5, "name":"Behavior Puzzle Trap", "desc":"Background puzzle only humans solve.", "demo":"Fails behavior puzzle"},
+  {"id":6, "name":"Tokenization Bomb Trap", "desc":"Hidden repetitive text to confuse parsers.", "demo":"Triggers tokenization bomb"},
+  {"id":7, "name":"Fake Login Flow Trap", "desc":"Fake login page to catch bots.", "demo":"Submits fake login"},
+  {"id":8, "name":"False 200 OK Trap", "desc":"Fake 200 OK response, logs bot activity.", "demo":"Triggers false OK"},
+  {"id":9, "name":"Dynamic HTML Mutation Trap", "desc":"DOM mutates after load. Bots miss changes.", "demo":"Misses DOM mutation"},
+  {"id":10, "name":"Tab Switch Trap", "desc":"Detects bots that never switch tabs.", "demo":"Never switches tab"},
+  {"id":11, "name":"Cookie Anomaly Trap", "desc":"Sets strange cookies, bots mishandle them.", "demo":"Mishandles cookies"},
+  {"id":12, "name":"Resource Loading Trap", "desc":"Fake assets that bots skip loading.", "demo":"Skips resource"},
+  {"id":13, "name":"Adversarial Prompt Trap", "desc":"Malformed HTML/JSON to break AI parsing.", "demo":"Fails to parse"},
+  {"id":14, "name":"AudioContext Fingerprint Trap", "desc":"Uses Audio API to detect headless browsers.", "demo":"Fails AudioContext test"},
+  {"id":15, "name":"Reverse Turing Trap", "desc":"Detects absence of human mistakes.", "demo":"Never makes human error"},
+  {"id":16, "name":"Time Delay Trap", "desc":"Detects abnormal timing between actions.", "demo":"Fails timing test"},
+  {"id":17, "name":"CSS Visibility Trap", "desc":"Elements hidden via CSS that bots may still interact with.", "demo":"Interacts with hidden element"},
+  {"id":18, "name":"Browser Fingerprint Trap", "desc":"Detects inconsistent browser fingerprints.", "demo":"Reveals inconsistent fingerprint"},
+  {"id":19, "name":"Mouse Movement Trap", "desc":"Tracks non-human mouse movement patterns.", "demo":"Shows unnatural movement"},
+  {"id":20, "name":"Keyboard Pattern Trap", "desc":"Detects non-human typing patterns.", "demo":"Reveals bot typing pattern"},
+  {"id":21, "name":"WebGL Fingerprint Trap", "desc":"Uses WebGL to detect headless browsers.", "demo":"Fails WebGL test"}
+]

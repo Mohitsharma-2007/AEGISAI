@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script src="main.js" defer></script>
+  <script src="logs-new.js" defer></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AegisAI Attack Logs</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800&family=Poppins:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .log-summary{display:flex;justify-content:space-between;margin-top:2rem;background:#1a2634;padding:1rem;border-radius:8px;max-width:600px;}
+    .log-summary div{font-size:0.9rem;}
+    .log-summary b{color:#6fffe9;font-size:1.1rem;margin-left:0.5rem;}
+    .logs{padding:2rem;}
+    .logs h2{margin-bottom:1.5rem;color:#6fffe9;}
+    .log-controls{display:flex;gap:1rem;margin-bottom:1.5rem;flex-wrap:wrap;align-items:center;}
+    .log-search{padding:0.5rem 1rem;border-radius:8px;border:none;background:#1a2634;color:#e0e0e0;min-width:250px;}
+    .log-filter{padding:0.5rem 1rem;border-radius:8px;border:none;background:#1a2634;color:#e0e0e0;}
+    #logs-table{width:100%;border-collapse:collapse;margin-bottom:1.5rem;background:#1a2634;border-radius:8px;overflow:hidden;}
+    #logs-table th{text-align:left;padding:1rem;background:#232b3a;color:#6fffe9;font-weight:normal;}
+    #logs-table td{padding:0.75rem 1rem;border-top:1px solid #2c3e50;color:#e0e0e0;}
+    .delete-btn{padding:0.5rem 1rem;border-radius:8px;border:none;background:#ff1744;color:white;cursor:pointer;font-weight:bold;transition:all 0.3s ease;}
+    .delete-btn:hover{background:#d50000;transform:translateY(-2px);box-shadow:0 4px 8px rgba(0,0,0,0.2);}
+    .delete-btn.delete-all{background:#d50000;}
+    .delete-btn.delete-all:hover{background:#b71c1c;}
+    .modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);z-index:1000;justify-content:center;align-items:center;}
+    .modal[style*="flex"]{display:flex !important;}
+    .modal-content{background:#1a2634;padding:2rem;border-radius:12px;width:400px;max-width:90%;box-shadow:0 10px 25px rgba(0,0,0,0.3);}
+    .modal-title{color:#6fffe9;margin-top:0;margin-bottom:1rem;}
+    .modal-buttons{display:flex;justify-content:flex-end;gap:1rem;margin-top:1.5rem;}
+    .modal-btn{padding:0.5rem 1rem;border-radius:8px;border:none;cursor:pointer;font-weight:bold;}
+    .modal-btn.cancel{background:#232b3a;color:#6fffe9;}
+    .modal-btn.confirm{background:#ff1744;color:white;}
+    .modal-btn:hover{opacity:0.9;}
+    .log-checkbox{width:18px;height:18px;cursor:pointer;accent-color:#6fffe9;}
+    #select-all-logs{width:18px;height:18px;cursor:pointer;accent-color:#6fffe9;}
+    #logs-table tr.selected{background:rgba(111, 255, 233, 0.1);}
+    .selected-actions{background:rgba(24, 31, 42, 0.7);padding:10px 15px;border-radius:8px;display:flex;justify-content:flex-end;}
+    #logs-table tr:hover{background:rgba(255, 255, 255, 0.05);}
+    #logs-table tbody tr{cursor:pointer;}
+    #logs-table th:first-child, #logs-table td:first-child{width:30px;text-align:center;}
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+  <button id="theme-toggle" class="api-btn" style="float:right;margin:8px;">Toggle Theme</button>
+    <div class="logo">AegisAI</div>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="dashboard.html">Dashboard</a></li>
+      <li><a href="contact.html">Contact Us</a></li>
+      <li><a href="ai-attack-lab.html">AI Attack Lab</a></li>
+      <li><a href="logs.html">Attack Logs</a></li>
+      <li><a href="traps.html">Traps</a></li>
+      <li><a href="console.html" style="background:#ffd600;color:#232b3a;border-radius:7px;padding:0.25em 1.1em;margin-left:0.7em;font-weight:600;">Attack Console</a></li>
+      <li><a href="settings.html">Settings</a></li>
+    </ul>
+  </nav>
+  <section class="section logs">
+  <h2>Attack Logs</h2>
+  <div class="log-controls">
+    <input type="text" placeholder="Search by IP or Type..." class="log-search" id="log-search" />
+    <select class="log-filter" id="log-filter">
+      <option>All</option>
+      <option>Blocked</option>
+      <option>Confused</option>
+      <option>Escaped</option>
+    </select>
+    <button id="delete-filtered-logs" class="delete-btn">Delete Filtered</button>
+    <button id="delete-all-logs" class="delete-btn delete-all">Delete All</button>
+  </div>
+  <table id="logs-table">
+  <thead>
+    <tr>
+      <th><input type="checkbox" id="select-all-logs" title="Select All Logs"></th>
+      <th>Timestamp</th>
+      <th>IP Address</th>
+      <th>Type</th>
+      <th>Status</th>
+      <th>Summary</th>
+    </tr>
+  </thead>
+  <tbody id="logs-tbody">
+    <tr><td colspan="6">Loading...</td></tr>
+  </tbody>
+</table>
+<div class="selected-actions" id="selected-actions" style="display:none; margin-top:15px;">
+  <button id="delete-selected" class="delete-btn">Delete Selected (<span id="selected-count">0</span>)</button>
+</div>
+
+  <div class="log-summary" id="log-summary">
+  <div>Total Entries: <b id="log-total">...</b></div>
+  <div>Blocked: <b id="log-blocked">...</b></div>
+  <div>Confused: <b id="log-confused">...</b></div>
+  <div>Escaped: <b id="log-escaped">...</b></div>
+</div>
+</section>
+  <!-- Confirmation Modal -->
+  <div id="delete-modal" class="modal">
+    <div class="modal-content">
+      <h3 class="modal-title">Confirm Delete</h3>
+      <p id="modal-message">Are you sure you want to delete these logs?</p>
+      <div class="modal-buttons">
+        <button id="modal-cancel" class="modal-btn cancel">Cancel</button>
+        <button id="modal-confirm" class="modal-btn confirm">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <div class="footer-content">
+      <div class="footer-section">
+        <h3>AegisAI</h3>
+        <p>Advanced AI Security Platform</p>
+      </div>
+      <div class="footer-section">
+        
+      </div>
+      <div class="footer-section">
+        <h3>Contact</h3>
+        <p>Email: info@aegisai.com</p>
+        <p>Phone: +1 (555) 123-4567</p>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2023 AegisAI. All rights reserved.</p>
+    </div>
+  </footer>
+</body>
+</html>
+      

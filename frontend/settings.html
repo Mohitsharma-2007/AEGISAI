@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script src="main.js" defer></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AegisAI Settings</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800&family=Poppins:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <nav class="navbar">
+  <button id="theme-toggle" class="api-btn" style="float:right;margin:8px;">Toggle Theme</button>
+    <div class="logo">AegisAI</div>
+    <ul class="nav-links">
+  <li><a href="index.html">Home</a></li>
+  <li><a href="dashboard.html">Dashboard</a></li>
+  <li><a href="logs.html">Attack Logs</a></li>
+  <li><a href="traps.html">Traps</a></li>
+  <li><a href="settings.html">Settings</a></li>
+</ul>
+  </nav>
+  <section class="section settings">
+  <h2><span style="font-size:1.6em;vertical-align:middle;">⚙️</span> Settings</h2>
+  <div class="settings-summary-card" id="settings-summary">
+    <div><b>Theme:</b> <span id="summary-theme">...</span></div>
+    <div><b>Sensitivity:</b> <span id="summary-sensitivity">...</span></div>
+    <div><b>Notifications:</b> <span id="summary-notif">...</span></div>
+    <div><b>2FA:</b> <span id="summary-2fa">...</span></div>
+    <div><b>Language:</b> <span id="summary-lang">...</span></div>
+  </div>
+  <div class="settings-section">
+    <h3>Appearance</h3>
+    <div class="settings-row">
+      <span>Theme:</span>
+      
+      <span class="status-indicator" id="theme-status">...</span>
+    </div>
+  </div>
+  <div class="settings-section">
+    <h3>Detection</h3>
+    <div class="settings-row">
+      <span>Sensitivity:</span>
+      <select id="sensitivity-select"><option>Low</option><option>Medium</option><option>High</option></select>
+      <span class="status-indicator" id="sensitivity-status">...</span>
+    </div>
+  </div>
+  <div class="settings-section">
+    <h3>Notifications & Security</h3>
+    <div class="settings-row">
+      <span>Notifications:</span>
+      <input type="checkbox" id="notif-toggle" /> Email Alerts
+      <span class="status-indicator" id="notif-status">...</span>
+    </div>
+    <div class="settings-row">
+      <span>Password:</span>
+      <button id="change-password" class="api-btn">Change Password</button>
+    </div>
+    <div class="settings-row">
+      <span>Two-Factor Auth:</span>
+      <input type="checkbox" id="2fa-toggle" /> Enable 2FA
+      <span class="status-indicator" id="2fa-status">...</span>
+    </div>
+  </div>
+  <div class="settings-section">
+    <h3>Language & Data</h3>
+    <div class="settings-row">
+      <span>Language:</span>
+      <select id="lang-select"><option>English</option><option>Hindi</option><option>French</option></select>
+      <span class="status-indicator" id="lang-status">...</span>
+    </div>
+    <div class="settings-row">
+      <span>Export Data:</span>
+      <button id="export-data" class="api-btn">Download Logs</button>
+    </div>
+    <div class="settings-row">
+      <span>Reset:</span>
+      <button id="reset-settings" class="api-btn">Reset to Defaults</button>
+    </div>
+  </div>
+  <div class="api-section">
+    <h3>API Integration</h3>
+    <p>Connect AegisAI to your backend or third-party services for advanced automation and alerting.</p>
+    <input type="text" class="api-input" id="api-key-input" placeholder="Enter API Key..." />
+    <button id="api-save" class="api-btn">Save</button>
+  </div>
+  <div id="settings-feedback" style="margin-top:1rem;"></div>
+</section>
+<style>
+.settings-summary-card {background:#181f2a;border-radius:10px;padding:1.2em 2em;margin-bottom:2em;box-shadow:0 2px 12px #0ff3;display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1em;}
+body.light-mode .settings-summary-card {background:#f0f4fa;color:#181f2a;}
+.settings-section {margin-bottom:2em;}
+.settings-row {display:flex;align-items:center;gap:1.5em;margin:1em 0;}
+.status-indicator {margin-left:0.5em;font-size:1.1em;}
+#settings-feedback {font-weight:600;}
+</style>
+<style>
+body.light-mode {
+  background: #f6f6f6;
+  color: #181f2a;
+}
+body.light-mode .section {
+  background: #fff;
+  color: #181f2a;
+  box-shadow: 0 2px 24px #0001;
+}
+body.light-mode .navbar {
+  background: #e4f0ff;
+  color: #181f2a;
+}
+body.light-mode .logo {
+  color: #0e8cf7;
+}
+body.light-mode .nav-links a {
+  color: #181f2a;
+}
+body.light-mode .nav-links a:hover {
+  color: #0e8cf7;
+}
+body.light-mode .card,
+body.light-mode .feature-card {
+  background: #f0f4fa;
+  color: #181f2a;
+}
+body.light-mode .cta,
+body.light-mode .api-btn {
+  background: #0e8cf7;
+  color: #fff;
+}
+body.light-mode .cta:hover,
+body.light-mode .api-btn:hover {
+  background: #42b3b3;
+  color: #fff;
+}
+body.light-mode .trap,
+body.light-mode .trap-list {
+  background: #f0f4fa;
+  color: #181f2a;
+}
+body.light-mode .pill {
+  background: #e4f0ff;
+  color: #181f2a;
+}
+</style>
+  <footer>
+    &copy; 2025 AegisAI — Adaptive Shield Against AI Attacks
+  </footer>
+  
+<style>
+.api-section{margin-top:2rem;}
+.api-input{padding:0.5rem 1rem;border-radius:8px;border:none;background:#232b3a;color:#6fffe9;margin-right:1rem;}
+.api-btn{padding:0.5rem 1.5rem;border-radius:8px;background:#6fffe9;color:#181f2a;font-weight:700;border:none;cursor:pointer;}
+</style>
+</body>
+</html>

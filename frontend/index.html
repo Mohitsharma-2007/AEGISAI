@@ -1,0 +1,1347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script src="main.js" defer></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AegisAI Prototype</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800&family=Poppins:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+  <!-- Chart.js for interactive graphs -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Moment.js for time formatting -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
+</head>
+<body>
+  <nav class="navbar">
+  <button id="theme-toggle" class="api-btn" style="float:right;margin:8px;">Toggle Theme</button>
+    <div class="logo">AegisAI</div>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="dashboard.html">Dashboard</a></li>
+      <li><a href="contact.html">Contact Us</a></li>
+      <li><a href="ai-attack-lab.html">AI Attack Lab</a></li>
+      <li><a href="logs.html">Attack Logs</a></li>
+      <li><a href="traps.html">Traps</a></li>
+      <li><a href="console.html" style="background:#ffd600;color:#232b3a;border-radius:7px;padding:0.25em 1.1em;margin-left:0.7em;font-weight:600;">Attack Console</a></li>
+      <li><a href="settings.html">Settings</a></li>
+    </ul>
+  </nav>
+  <section id="hero" class="section hero">
+  <h1>Adaptive Shield Against AI Attacks</h1>
+  <p class="hero-sub">Next-gen adversarial AI defense for websites and APIs. Detect, confuse, and neutralize bots, LLMs, and automated threats in real time.</p>
+  <a href="dashboard.html" class="cta">Get Started</a>
+<button id="simulate-all-attacks" class="cta" style="margin-left:1.5em;background:#ff1744;color:#fff;" onclick="startAllAttacks()">Simulate All Attacks</button>
+<a href="console.html" class="cta" style="margin-left:1em;background:#ffd600;color:#232b3a;">Go to Attack Console</a>
+</section>
+
+<section id="features" class="section features">
+  <h2>Key Features</h2>
+  <div class="feature-grid">
+    <div class="feature-card">
+      <h3>⚡ Real-time Detection</h3>
+      <p>Instantly spot bots, LLMs, and automated threats as they interact with your site.</p>
+    </div>
+    <div class="feature-card">
+      <h3>🛡️ Dynamic Traps & Honeypots</h3>
+      <p>Deploy invisible traps and honeypots to catch and confuse malicious actors.</p>
+    </div>
+    <div class="feature-card">
+      <h3>🔒 Security Analytics Dashboard</h3>
+      <p>Visualize attack trends, blocked attempts, and your overall security rating.</p>
+    </div>
+    <div class="feature-card">
+      <h3>🤖 AI/LLM Confusion</h3>
+      <p>Deploy logic puzzles and randomized CAPTCHAs to defeat advanced bots and AIs.</p>
+    </div>
+    <div class="feature-card">
+      <h3>📊 Attack Logs</h3>
+      <p>View detailed logs of every detected and blocked attack, with filtering and search.</p>
+    </div>
+    <div class="feature-card">
+      <h3>🎛️ Customizable Settings</h3>
+      <p>Adjust detection sensitivity, notification preferences, and API integrations.</p>
+    </div>
+  </div>
+</section>
+
+<section id="how-it-works" class="section how-it-works">
+  <h2>How It Works</h2>
+  <ol class="hiw-steps">
+    <li><b>Monitor:</b> All traffic is analyzed in real time using advanced heuristics and ML.</li>
+    <li><b>Detect:</b> Bots, LLMs, and suspicious actors are flagged instantly.</li>
+    <li><b>Trap:</b> Dynamic traps and honeypots are deployed to confuse and block threats.</li>
+    <li><b>Respond:</b> Security actions are triggered and admins are notified.</li>
+    <li><b>Analyze:</b> All events are logged and visualized in your dashboard.</li>
+  </ol>
+</section>
+
+<section id="dashboard-preview" class="section dashboard-preview">
+  <h2>Dashboard Preview</h2>
+  <div class="dashboard-container" style="background: rgba(35, 43, 58, 0.7); backdrop-filter: blur(10px); border-radius: 15px; padding: 20px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2); border: 1px solid rgba(111, 255, 233, 0.2);">
+    <!-- Top row with waveform chart -->
+    <div style="width:100%; margin-bottom:20px; text-align:center;">
+      <h3 style="color:#6fffe9; margin-bottom:10px; font-size:1.2em;">Real-time Attack Waveform</h3>
+      <div style="height:90px; width:100%; position:relative;">
+        <canvas id="waveform-chart" style="border-radius:10px; background: rgba(24, 31, 42, 0.6);"></canvas>
+      </div>
+      <div style="color:#b5b5b5; font-size:0.85em; margin-top:0.5em;">Live Attack Intensity (Last 24 Hours)</div>
+    </div>
+    
+    <!-- Middle row with cards -->
+    <div class="dashboard-grid" style="display:grid; grid-template-columns:repeat(3, 1fr); gap:20px; margin-bottom:25px;">
+      <div class="card" style="background: rgba(24, 31, 42, 0.7); border-radius:12px; padding:20px; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15); border-left: 4px solid #ff5252; transition: transform 0.3s;">
+        <div class="big-number" id="preview-bots" style="font-size:2.5em; font-weight:bold; color:#ff5252;">...</div>
+        <div class="label" style="color:#b5b5b5;">Detected Bots (Today)</div>
+        <div class="trend" id="bots-trend" style="font-size:0.9em; margin-top:10px; color:#ff5252;">+0% from yesterday</div>
+      </div>
+      <div class="card" style="background: rgba(24, 31, 42, 0.7); border-radius:12px; padding:20px; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15); border-left: 4px solid #ffd600; transition: transform 0.3s;">
+        <div class="big-number" id="preview-blocks" style="font-size:2.5em; font-weight:bold; color:#ffd600;">...</div>
+        <div class="label" style="color:#b5b5b5;">Blocked Attempts (Today)</div>
+        <div class="trend" id="blocks-trend" style="font-size:0.9em; margin-top:10px; color:#ffd600;">+0% from yesterday</div>
+      </div>
+      <div class="card" style="background: rgba(24, 31, 42, 0.7); border-radius:12px; padding:20px; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15); border-left: 4px solid #6fffe9; transition: transform 0.3s;">
+        <div class="big-number" id="preview-rating" style="font-size:2.5em; font-weight:bold; color:#6fffe9;">...</div>
+        <div class="label" style="color:#b5b5b5;">Security Rating</div>
+        <div class="trend" id="rating-trend" style="font-size:0.9em; margin-top:10px; color:#6fffe9;">Excellent</div>
+      </div>
+    </div>
+    
+    <!-- Bottom row with pie chart and threat graph -->
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
+      <div style="background: rgba(24, 31, 42, 0.7); border-radius:12px; padding:15px; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);">
+        <h3 style="color:#6fffe9; margin-bottom:10px; font-size:1.1em; text-align:center;">Attack Distribution</h3>
+        <div style="height:150px; width:100%; position:relative;">
+          <canvas id="attack-distribution-chart"></canvas>
+        </div>
+      </div>
+      <div style="background: rgba(24, 31, 42, 0.7); border-radius:12px; padding:15px; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);">
+        <h3 style="color:#6fffe9; margin-bottom:10px; font-size:1.1em; text-align:center;">Threat Level Timeline</h3>
+        <div style="height:150px; width:100%; position:relative;">
+          <canvas id="threat-timeline-chart"></canvas>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Dashboard actions -->
+    <div style="display:flex; justify-content:space-between; margin-top:25px; align-items:center;">
+      <div style="display:flex; gap:10px;">
+        <button id="refresh-dashboard" class="cta" style="background:#6fffe9; color:#232b3a; font-size:0.9em; padding:8px 15px;">
+          <span id="last-updated">Last updated: Just now</span>
+        </button>
+        <button id="export-dashboard" class="cta" style="background:#ffd600; color:#232b3a; font-size:0.9em; padding:8px 15px;">
+          Export Data
+        </button>
+      </div>
+      <a href="dashboard.html" class="cta" style="background:#00b0ff; color:#232b3a; font-size:0.9em; padding:8px 15px;">
+        Full Dashboard
+      </a>
+    </div>
+  </div>
+</section>
+
+<script>
+// Dashboard data and charts
+let waveformChart, attackDistributionChart, threatTimelineChart;
+let dashboardData = {
+  bots_today: 0,
+  blocked_today: 0,
+  security_rating: 0,
+  bots_yesterday: 0,
+  blocks_yesterday: 0,
+  security_yesterday: 0,
+  attack_distribution: {
+    'Bot Attacks': 35,
+    'LLM/AI Attacks': 25,
+    'SQL Injection': 15,
+    'XSS Attempts': 10,
+    'CSRF Attacks': 8,
+    'Other': 7
+  },
+  hourly_attacks: [5, 3, 2, 1, 0, 0, 1, 3, 8, 12, 15, 18, 22, 25, 20, 18, 15, 12, 10, 8, 6, 5, 4, 3],
+  threat_timeline: [
+    { time: '00:00', level: 2 },
+    { time: '04:00', level: 1 },
+    { time: '08:00', level: 3 },
+    { time: '12:00', level: 4 },
+    { time: '16:00', level: 3 },
+    { time: '20:00', level: 2 }
+  ]
+};
+
+// Function to initialize all charts
+function initCharts() {
+  // Waveform chart
+  const waveformCtx = document.getElementById('waveform-chart').getContext('2d');
+  const gradient = waveformCtx.createLinearGradient(0, 0, 0, 200);
+  gradient.addColorStop(0, 'rgba(111, 255, 233, 0.8)');
+  gradient.addColorStop(1, 'rgba(111, 255, 233, 0.1)');
+  
+  waveformChart = new Chart(waveformCtx, {
+    type: 'line',
+    data: {
+      labels: Array.from({length: 24}, (_, i) => `${i}:00`),
+      datasets: [{
+        label: 'Attack Intensity',
+        data: dashboardData.hourly_attacks,
+        borderColor: '#6fffe9',
+        backgroundColor: gradient,
+        borderWidth: 2,
+        pointRadius: 3,
+        pointBackgroundColor: '#6fffe9',
+        tension: 0.4,
+        fill: true
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: true,
+      aspectRatio: 3.5, // Control the aspect ratio
+      onResize: function(chart, size) {
+        // Prevent resizing beyond initial dimensions
+        if (size.height > 90) {
+          chart.height = 90;
+        }
+      },
+      plugins: {
+        legend: {
+          display: false
+        },
+        tooltip: {
+          mode: 'index',
+          intersect: false,
+          backgroundColor: 'rgba(24, 31, 42, 0.9)',
+          titleColor: '#6fffe9',
+          bodyColor: '#ffffff',
+          borderColor: '#6fffe9',
+          borderWidth: 1
+        }
+      },
+      scales: {
+        x: {
+          grid: {
+            color: 'rgba(255, 255, 255, 0.05)'
+          },
+          ticks: {
+            color: '#b5b5b5',
+            maxRotation: 0,
+            callback: function(value, index) {
+              return index % 4 === 0 ? this.getLabelForValue(value) : '';
+            }
+          }
+        },
+        y: {
+          grid: {
+            color: 'rgba(255, 255, 255, 0.05)'
+          },
+          ticks: {
+            color: '#b5b5b5'
+          },
+          beginAtZero: true
+        }
+      }
+    }
+  });
+  
+  // Attack distribution pie chart
+  const distributionCtx = document.getElementById('attack-distribution-chart').getContext('2d');
+  attackDistributionChart = new Chart(distributionCtx, {
+    type: 'doughnut',
+    data: {
+      labels: Object.keys(dashboardData.attack_distribution),
+      datasets: [{
+        data: Object.values(dashboardData.attack_distribution),
+        backgroundColor: [
+          '#ff5252', // Bot Attacks
+          '#ffd600', // LLM/AI Attacks
+          '#6fffe9', // SQL Injection
+          '#00b0ff', // XSS Attempts
+          '#b388ff', // CSRF Attacks
+          '#8d6e63'  // Other
+        ],
+        borderColor: 'rgba(24, 31, 42, 0.7)',
+        borderWidth: 2,
+        hoverOffset: 15
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: true,
+      aspectRatio: 1.5, // Square-ish aspect ratio for pie chart
+      onResize: function(chart, size) {
+        // Prevent resizing beyond initial dimensions
+        if (size.height > 150) {
+          chart.height = 150;
+        }
+      },
+      plugins: {
+        legend: {
+          position: 'right',
+          labels: {
+            color: '#b5b5b5',
+            padding: 10,
+            font: {
+              size: 11
+            },
+            boxWidth: 12
+          }
+        },
+        tooltip: {
+          backgroundColor: 'rgba(24, 31, 42, 0.9)',
+          titleColor: '#ffffff',
+          bodyColor: '#ffffff',
+          borderColor: '#6fffe9',
+          borderWidth: 1
+        }
+      },
+      cutout: '65%'
+    }
+  });
+  
+  // Threat timeline chart
+  const timelineCtx = document.getElementById('threat-timeline-chart').getContext('2d');
+  const timelineGradient = timelineCtx.createLinearGradient(0, 0, 0, 200);
+  timelineGradient.addColorStop(0, 'rgba(255, 82, 82, 0.8)');
+  timelineGradient.addColorStop(1, 'rgba(255, 82, 82, 0.1)');
+  
+  threatTimelineChart = new Chart(timelineCtx, {
+    type: 'bar',
+    data: {
+      labels: dashboardData.threat_timeline.map(item => item.time),
+      datasets: [{
+        label: 'Threat Level',
+        data: dashboardData.threat_timeline.map(item => item.level),
+        backgroundColor: timelineGradient,
+        borderColor: '#ff5252',
+        borderWidth: 1,
+        borderRadius: 5
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: true,
+      aspectRatio: 2, // Control the aspect ratio
+      onResize: function(chart, size) {
+        // Prevent resizing beyond initial dimensions
+        if (size.height > 150) {
+          chart.height = 150;
+        }
+      },
+      plugins: {
+        legend: {
+          display: false
+        },
+        tooltip: {
+          backgroundColor: 'rgba(24, 31, 42, 0.9)',
+          titleColor: '#ff5252',
+          bodyColor: '#ffffff',
+          callbacks: {
+            label: function(context) {
+              const level = context.raw;
+              let label = `Threat Level: ${level}`;
+              let description = '';
+              
+              switch(level) {
+                case 1: description = 'Low - Normal activity'; break;
+                case 2: description = 'Moderate - Some suspicious activity'; break;
+                case 3: description = 'High - Active attack attempts'; break;
+                case 4: description = 'Critical - Coordinated attack in progress'; break;
+                case 5: description = 'Extreme - System under heavy attack'; break;
+              }
+              
+              return [label, description];
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          grid: {
+            display: false
+          },
+          ticks: {
+            color: '#b5b5b5'
+          }
+        },
+        y: {
+          grid: {
+            color: 'rgba(255, 255, 255, 0.05)'
+          },
+          ticks: {
+            color: '#b5b5b5',
+            stepSize: 1,
+            callback: function(value) {
+              const labels = ['', 'Low', 'Moderate', 'High', 'Critical', 'Extreme'];
+              return labels[value] || value;
+            }
+          },
+          max: 5,
+          min: 0
+        }
+      }
+    }
+  });
+}
+
+// Function to update dashboard with new data
+function updateDashboard(data) {
+  // Update card values
+  document.getElementById('preview-bots').textContent = data.bots_today;
+  document.getElementById('preview-blocks').textContent = data.blocked_today;
+  document.getElementById('preview-rating').textContent = data.security_rating + '%';
+  
+  // Update trends
+  const botsTrend = ((data.bots_today - data.bots_yesterday) / Math.max(data.bots_yesterday, 1)) * 100;
+  const blocksTrend = ((data.blocked_today - data.blocks_yesterday) / Math.max(data.blocks_yesterday, 1)) * 100;
+  const ratingTrend = data.security_rating - data.security_yesterday;
+  
+  document.getElementById('bots-trend').textContent = `${botsTrend > 0 ? '+' : ''}${botsTrend.toFixed(1)}% from yesterday`;
+  document.getElementById('bots-trend').style.color = botsTrend > 0 ? '#ff5252' : '#6fffe9';
+  
+  document.getElementById('blocks-trend').textContent = `${blocksTrend > 0 ? '+' : ''}${blocksTrend.toFixed(1)}% from yesterday`;
+  document.getElementById('blocks-trend').style.color = blocksTrend > 0 ? '#ffd600' : '#b5b5b5';
+  
+  let ratingText = 'Good';
+  if (data.security_rating >= 90) ratingText = 'Excellent';
+  else if (data.security_rating >= 70) ratingText = 'Very Good';
+  else if (data.security_rating >= 50) ratingText = 'Fair';
+  else if (data.security_rating < 50) ratingText = 'Needs Attention';
+  
+  document.getElementById('rating-trend').textContent = ratingText;
+  
+  // Update last updated time
+  document.getElementById('last-updated').textContent = `Last updated: ${moment().format('HH:mm:ss')}`;
+  
+  // Update charts if they exist
+  if (waveformChart) {
+    waveformChart.data.datasets[0].data = data.hourly_attacks;
+    waveformChart.update();
+  }
+  
+  if (attackDistributionChart) {
+    attackDistributionChart.data.labels = Object.keys(data.attack_distribution);
+    attackDistributionChart.data.datasets[0].data = Object.values(data.attack_distribution);
+    attackDistributionChart.update();
+  }
+  
+  if (threatTimelineChart) {
+    threatTimelineChart.data.labels = data.threat_timeline.map(item => item.time);
+    threatTimelineChart.data.datasets[0].data = data.threat_timeline.map(item => item.level);
+    threatTimelineChart.update();
+  }
+}
+
+// Function to fetch dashboard data from API
+async function fetchDashboardPreview() {
+  try {
+    const res = await fetch('/api/dashboard');
+    let data = await res.json();
+    
+    // If we got real data, use it, otherwise use our simulated data
+    if (!data.hourly_attacks) {
+      // Merge real data with our simulated data
+      data = {
+        ...dashboardData,
+        bots_today: data.bots_today || Math.floor(Math.random() * 150) + 50,
+        blocked_today: data.blocked_today || Math.floor(Math.random() * 120) + 30,
+        security_rating: data.security_rating || Math.floor(Math.random() * 20) + 80,
+        bots_yesterday: Math.floor((data.bots_today || dashboardData.bots_today) * 0.8),
+        blocks_yesterday: Math.floor((data.blocked_today || dashboardData.blocked_today) * 0.9),
+        security_yesterday: Math.floor((data.security_rating || dashboardData.security_rating) * 0.95)
+      };
+    }
+    
+    // Update dashboard with the data
+    dashboardData = data;
+    updateDashboard(data);
+    
+  } catch (e) {
+    console.error('Error fetching dashboard data:', e);
+    
+    // Generate random data for demonstration
+    dashboardData.bots_today = Math.floor(Math.random() * 150) + 50;
+    dashboardData.blocked_today = Math.floor(Math.random() * 120) + 30;
+    dashboardData.security_rating = Math.floor(Math.random() * 20) + 80;
+    dashboardData.bots_yesterday = Math.floor(dashboardData.bots_today * 0.8);
+    dashboardData.blocks_yesterday = Math.floor(dashboardData.blocked_today * 0.9);
+    dashboardData.security_yesterday = Math.floor(dashboardData.security_rating * 0.95);
+    
+    // Update with simulated data
+    updateDashboard(dashboardData);
+  }
+}
+
+// Initialize dashboard on page load
+window.addEventListener('DOMContentLoaded', () => {
+  // Initialize charts
+  initCharts();
+  
+  // Fetch initial data
+  fetchDashboardPreview();
+  
+  // Set up refresh button
+  document.getElementById('refresh-dashboard').addEventListener('click', fetchDashboardPreview);
+  
+  // Set up export button
+  document.getElementById('export-dashboard').addEventListener('click', () => {
+    alert('Dashboard data exported to CSV');
+  });
+  
+  // Set up auto-refresh every 30 seconds
+  setInterval(fetchDashboardPreview, 30000);
+});
+</script>
+
+<section id="logs-preview" class="section logs-preview">
+  <h2>Attack Logs Preview</h2>
+  <div class="logs-container" style="background: rgba(35, 43, 58, 0.7); backdrop-filter: blur(10px); border-radius: 15px; padding: 20px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2); border: 1px solid rgba(111, 255, 233, 0.2);">
+    <!-- Logs header -->
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+      <h3 style="color:#ff5252; margin:0; font-size:1.3em;">Recent Attack Activity</h3>
+      <div style="display:flex; align-items:center; gap:10px;">
+        <div class="log-filter" style="display:flex; align-items:center; gap:5px;">
+          <span style="color:#b5b5b5; font-size:0.9em;">Filter:</span>
+          <select id="log-filter-select" style="background: rgba(24, 31, 42, 0.7); color:#b5b5b5; border:1px solid rgba(111, 255, 233, 0.3); border-radius:4px; padding:5px 10px; font-size:0.9em;">
+            <option value="all">All Events</option>
+            <option value="blocked">Blocked Only</option>
+            <option value="ai">AI/LLM Attacks</option>
+            <option value="bot">Bot Attacks</option>
+          </select>
+        </div>
+        <button id="refresh-logs" class="cta" style="background:#ff5252; color:#fff; font-size:0.8em; padding:5px 10px;">
+          Refresh
+        </button>
+      </div>
+    </div>
+    
+    <!-- Logs table -->
+    <div style="overflow-x:auto; margin-bottom:20px;">
+      <table style="width:100%; border-collapse:collapse; border-radius:8px; overflow:hidden;">
+        <thead>
+          <tr style="background:rgba(24, 31, 42, 0.9);">
+            <th style="padding:12px 15px; text-align:left; color:#6fffe9; font-weight:600; border-bottom:1px solid rgba(111, 255, 233, 0.2);">Timestamp</th>
+            <th style="padding:12px 15px; text-align:left; color:#6fffe9; font-weight:600; border-bottom:1px solid rgba(111, 255, 233, 0.2);">IP Address</th>
+            <th style="padding:12px 15px; text-align:left; color:#6fffe9; font-weight:600; border-bottom:1px solid rgba(111, 255, 233, 0.2);">Type</th>
+            <th style="padding:12px 15px; text-align:left; color:#6fffe9; font-weight:600; border-bottom:1px solid rgba(111, 255, 233, 0.2);">Status</th>
+            <th style="padding:12px 15px; text-align:left; color:#6fffe9; font-weight:600; border-bottom:1px solid rgba(111, 255, 233, 0.2);">Action</th>
+          </tr>
+        </thead>
+        <tbody id="logs-preview-body" style="background:rgba(24, 31, 42, 0.5);">
+          <tr><td colspan="5" style="padding:15px; text-align:center; color:#b5b5b5;">Loading...</td></tr>
+        </tbody>
+      </table>
+    </div>
+    
+    <!-- Logs summary -->
+    <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:10px; margin-bottom:15px;">
+      <div class="log-stat" style="background:rgba(24, 31, 42, 0.7); border-radius:8px; padding:10px; text-align:center;">
+        <div style="font-size:1.5em; font-weight:bold; color:#ff5252;" id="log-stat-total">0</div>
+        <div style="color:#b5b5b5; font-size:0.8em;">Total Attacks</div>
+      </div>
+      <div class="log-stat" style="background:rgba(24, 31, 42, 0.7); border-radius:8px; padding:10px; text-align:center;">
+        <div style="font-size:1.5em; font-weight:bold; color:#ffd600;" id="log-stat-blocked">0</div>
+        <div style="color:#b5b5b5; font-size:0.8em;">Blocked</div>
+      </div>
+      <div class="log-stat" style="background:rgba(24, 31, 42, 0.7); border-radius:8px; padding:10px; text-align:center;">
+        <div style="font-size:1.5em; font-weight:bold; color:#00b0ff;" id="log-stat-ai">0</div>
+        <div style="color:#b5b5b5; font-size:0.8em;">AI/LLM Attacks</div>
+      </div>
+      <div class="log-stat" style="background:rgba(24, 31, 42, 0.7); border-radius:8px; padding:10px; text-align:center;">
+        <div style="font-size:1.5em; font-weight:bold; color:#6fffe9;" id="log-stat-bot">0</div>
+        <div style="color:#b5b5b5; font-size:0.8em;">Bot Attacks</div>
+      </div>
+    </div>
+    
+    <!-- Logs actions -->
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+      <div style="display:flex; gap:10px;">
+        <button id="export-logs" class="cta" style="background:#ffd600; color:#232b3a; font-size:0.9em; padding:8px 15px;">
+          Export Logs
+        </button>
+        <button id="clear-logs" class="cta" style="background:#ff5252; color:#fff; font-size:0.9em; padding:8px 15px;">
+          Clear Logs
+        </button>
+      </div>
+      <a href="logs.html" class="cta" style="background:#00b0ff; color:#232b3a; font-size:0.9em; padding:8px 15px;">
+        View Full Logs
+      </a>
+    </div>
+  </div>
+</section>
+
+<script>
+// Logs data and UI interactions
+let logsData = [
+  { timestamp: '2023-07-15 08:23:45', ip: '192.168.1.105', type: 'Bot', status: 'Blocked', details: 'Form spam attempt' },
+  { timestamp: '2023-07-15 09:12:33', ip: '45.33.100.21', type: 'AI/LLM', status: 'Detected', details: 'GPT-based content scraping' },
+  { timestamp: '2023-07-15 10:05:17', ip: '103.74.19.104', type: 'SQL Injection', status: 'Blocked', details: 'Login form attack' },
+  { timestamp: '2023-07-15 11:30:22', ip: '8.8.8.8', type: 'Bot', status: 'Confused', details: 'CAPTCHA failed' },
+  { timestamp: '2023-07-15 12:45:10', ip: '192.168.1.110', type: 'XSS', status: 'Blocked', details: 'Comment form attack' }
+];
+
+// Function to update logs table
+function updateLogsTable(logs, filter = 'all') {
+  const tbody = document.getElementById('logs-preview-body');
+  
+  // Filter logs if needed
+  let filteredLogs = logs;
+  if (filter !== 'all') {
+    filteredLogs = logs.filter(log => {
+      if (filter === 'blocked') return log.status === 'Blocked';
+      if (filter === 'ai') return log.type === 'AI/LLM';
+      if (filter === 'bot') return log.type === 'Bot';
+      return true;
+    });
+  }
+  
+  // Update table
+  if (filteredLogs.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="5" style="padding:15px; text-align:center; color:#b5b5b5;">No logs matching the selected filter</td></tr>';
+    return;
+  }
+  
+  tbody.innerHTML = filteredLogs.map(log => {
+    // Determine status color
+    let statusColor = '#b5b5b5';
+    if (log.status === 'Blocked') statusColor = '#ff5252';
+    else if (log.status === 'Detected') statusColor = '#ffd600';
+    else if (log.status === 'Confused') statusColor = '#00b0ff';
+    
+    // Determine type color
+    let typeColor = '#b5b5b5';
+    if (log.type === 'Bot') typeColor = '#6fffe9';
+    else if (log.type === 'AI/LLM') typeColor = '#00b0ff';
+    else if (log.type === 'SQL Injection' || log.type === 'XSS') typeColor = '#ff5252';
+    
+    return `
+      <tr style="border-bottom:1px solid rgba(111, 255, 233, 0.1);">
+        <td style="padding:12px 15px; color:#b5b5b5;">${log.timestamp}</td>
+        <td style="padding:12px 15px; color:#b5b5b5;">${log.ip}</td>
+        <td style="padding:12px 15px;"><span style="color:${typeColor}; font-weight:500;">${log.type}</span></td>
+        <td style="padding:12px 15px;"><span style="color:${statusColor}; font-weight:500;">${log.status}</span></td>
+        <td style="padding:12px 15px;">
+          <button class="view-log-btn" data-ip="${log.ip}" style="background:rgba(111, 255, 233, 0.2); color:#6fffe9; border:none; border-radius:4px; padding:5px 10px; cursor:pointer; font-size:0.8em;">View</button>
+        </td>
+      </tr>
+    `;
+  }).join('');
+  
+  // Add event listeners to view buttons
+  document.querySelectorAll('.view-log-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const ip = btn.getAttribute('data-ip');
+      const log = logs.find(l => l.ip === ip);
+      alert(`Log Details:\nIP: ${log.ip}\nType: ${log.type}\nStatus: ${log.status}\nDetails: ${log.details}`);
+    });
+  });
+  
+  // Update stats
+  document.getElementById('log-stat-total').textContent = logs.length;
+  document.getElementById('log-stat-blocked').textContent = logs.filter(log => log.status === 'Blocked').length;
+  document.getElementById('log-stat-ai').textContent = logs.filter(log => log.type === 'AI/LLM').length;
+  document.getElementById('log-stat-bot').textContent = logs.filter(log => log.type === 'Bot').length;
+}
+
+// Function to fetch logs from API
+async function fetchLogsPreview() {
+  try {
+    const res = await fetch('/api/logs');
+    const data = await res.json();
+    
+    // If we got real data, use it, otherwise use our simulated data
+    if (Array.isArray(data) && data.length > 0) {
+      logsData = data;
+    }
+    
+    // Update UI with the data
+    updateLogsTable(logsData);
+    
+  } catch (e) {
+    console.error('Error fetching logs data:', e);
+    // Use default data if API fails
+    updateLogsTable(logsData);
+  }
+}
+
+// Initialize logs on page load
+window.addEventListener('DOMContentLoaded', () => {
+  // Fetch initial logs
+  fetchLogsPreview();
+  
+  // Set up filter select
+  document.getElementById('log-filter-select').addEventListener('change', (e) => {
+    updateLogsTable(logsData, e.target.value);
+  });
+  
+  // Set up refresh button
+  document.getElementById('refresh-logs').addEventListener('click', fetchLogsPreview);
+  
+  // Set up export button
+  document.getElementById('export-logs').addEventListener('click', () => {
+    alert('Logs exported to CSV');
+  });
+  
+  // Set up clear button
+  document.getElementById('clear-logs').addEventListener('click', () => {
+    if (confirm('Clear all logs? This action cannot be undone.')) {
+      logsData = [];
+      updateLogsTable(logsData);
+      alert('Logs cleared successfully');
+    }
+  });
+});
+</script>
+
+<!-- Honeypot Trap Gallery -->
+<section class="section" id="honeypot-gallery" style="background:#181f2a;margin-top:2em;">
+  <div style="display:flex;align-items:center;justify-content:space-between;">
+  <h2>🕳️ Honeypot Trap Gallery</h2>
+  <div style="margin-left:auto;display:flex;align-items:center;">
+    <span style="font-size:1.1em;color:#b5b5b5;margin-right:0.5em;">User View</span>
+    <label class="switch">
+      <input type="checkbox" id="trap-visibility-toggle">
+      <span class="slider round"></span>
+    </label>
+    <span style="font-size:1.1em;color:#b5b5b5;margin-left:0.5em;">Bot View</span>
+  </div>
+</div>
+<style>
+.switch { position: relative; display: inline-block; width: 36px; height: 20px;}
+.switch input { opacity: 0; width: 0; height: 0;}
+.slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #888; transition: .4s; border-radius: 20px;}
+.slider:before { position: absolute; content: ""; height: 14px; width: 14px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%;}
+input:checked + .slider { background-color: #6fffe9;}
+input:checked + .slider:before { transform: translateX(16px);}
+.card { min-height: 180px; padding: 1.2em; border-radius: 8px; background: #232b3a; box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
+canvas { max-height: 100%; width: 100% !important; }
+@media (max-width: 768px) {
+  #honeypot-cards { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 480px) {
+  #honeypot-cards { grid-template-columns: 1fr; }
+}
+</style>
+  <div id="honeypot-cards" style="display:grid;grid-template-columns:repeat(3, 1fr);gap:2em;width:100%;margin:2em 0;"></div>
+  <div id="honeypot-demo-area"></div>
+<div id="trap-element-demo" style="margin-top:2em;"></div>
+</section>
+
+<!-- Bot Attack Simulation Lab -->
+<section class="section" id="bot-lab" style="background:#232b3a;margin-top:2em;">
+  <h2>🤖 Bot Attack Simulation Lab</h2>
+  <p>Paste or write a bot script below and run it. The script will attempt to attack the honeypot demo form above. See if AegisAI detects and blocks it!</p>
+  <textarea id="bot-script" rows="7" style="width:100%;max-width:600px;"></textarea><br>
+  <button id="run-bot-script" class="api-btn" style="margin-top:1em;">Run Bot Script</button>
+  <div id="bot-lab-result" style="margin-top:1em;text-align:center;"></div>
+  <div style="margin-top:1em;color:#b5b5b5;font-size:0.95em;">
+    Example: <code>fillHoneypot(); clickFakeButton();</code>
+  </div>
+</section>
+
+<section id="traps-preview" class="section traps-preview">
+  <h2>Detection Traps Preview</h2>
+  <div class="traps-container" style="background: rgba(35, 43, 58, 0.7); backdrop-filter: blur(10px); border-radius: 15px; padding: 20px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2); border: 1px solid rgba(111, 255, 233, 0.2);">
+    <!-- Traps header -->
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+      <h3 style="color:#ffd600; margin:0; font-size:1.3em;">Active Defense Mechanisms</h3>
+      <div style="display:flex; align-items:center; gap:10px;">
+        <div class="trap-filter" style="display:flex; align-items:center; gap:5px;">
+          <span style="color:#b5b5b5; font-size:0.9em;">View:</span>
+          <select id="trap-filter-select" style="background: rgba(24, 31, 42, 0.7); color:#b5b5b5; border:1px solid rgba(111, 255, 233, 0.3); border-radius:4px; padding:5px 10px; font-size:0.9em;">
+            <option value="all">All Traps</option>
+            <option value="active">Active Only</option>
+            <option value="honeypot">Honeypots</option>
+            <option value="detector">Detectors</option>
+          </select>
+        </div>
+        <button id="deploy-trap" class="cta" style="background:#ffd600; color:#232b3a; font-size:0.8em; padding:5px 10px;">
+          Deploy New
+        </button>
+      </div>
+    </div>
+    
+    <!-- Traps grid -->
+    <div class="traps-grid" style="display:grid; grid-template-columns:repeat(3, 1fr); gap:15px; margin-bottom:20px;">
+      <!-- Trap cards will be inserted here -->
+      <div id="traps-preview-list" style="grid-column:span 3;">
+        <div style="padding:15px; text-align:center; color:#b5b5b5;">Loading...</div>
+      </div>
+    </div>
+    
+    <!-- Trap stats -->
+    <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:10px; margin-bottom:15px;">
+      <div class="trap-stat" style="background:rgba(24, 31, 42, 0.7); border-radius:8px; padding:10px; text-align:center;">
+        <div style="font-size:1.5em; font-weight:bold; color:#ffd600;" id="trap-stat-total">0</div>
+        <div style="color:#b5b5b5; font-size:0.8em;">Total Traps</div>
+      </div>
+      <div class="trap-stat" style="background:rgba(24, 31, 42, 0.7); border-radius:8px; padding:10px; text-align:center;">
+        <div style="font-size:1.5em; font-weight:bold; color:#6fffe9;" id="trap-stat-active">0</div>
+        <div style="color:#b5b5b5; font-size:0.8em;">Active</div>
+      </div>
+      <div class="trap-stat" style="background:rgba(24, 31, 42, 0.7); border-radius:8px; padding:10px; text-align:center;">
+        <div style="font-size:1.5em; font-weight:bold; color:#ff5252;" id="trap-stat-triggered">0</div>
+        <div style="color:#b5b5b5; font-size:0.8em;">Triggered Today</div>
+      </div>
+      <div class="trap-stat" style="background:rgba(24, 31, 42, 0.7); border-radius:8px; padding:10px; text-align:center;">
+        <div style="font-size:1.5em; font-weight:bold; color:#00b0ff;" id="trap-stat-effectiveness">0%</div>
+        <div style="color:#b5b5b5; font-size:0.8em;">Effectiveness</div>
+      </div>
+    </div>
+    
+    <!-- Traps actions -->
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+      <div style="display:flex; gap:10px;">
+        <button id="activate-all" class="cta" style="background:#6fffe9; color:#232b3a; font-size:0.9em; padding:8px 15px;">
+          Activate All
+        </button>
+        <button id="test-traps" class="cta" style="background:#ffd600; color:#232b3a; font-size:0.9em; padding:8px 15px;">
+          Test Traps
+        </button>
+      </div>
+      <a href="traps.html" class="cta" style="background:#00b0ff; color:#232b3a; font-size:0.9em; padding:8px 15px;">
+        Manage Traps
+      </a>
+    </div>
+  </div>
+</section>
+
+<script>
+// Traps data and UI interactions
+let trapsData = [
+  { id: 1, name: 'Invisible Form Field', type: 'honeypot', status: 'ON', description: 'Hidden field that only bots can see', effectiveness: 92, triggers: 17 },
+  { id: 2, name: 'Mouse Movement Tracker', type: 'detector', status: 'ON', description: 'Detects non-human mouse patterns', effectiveness: 85, triggers: 12 },
+  { id: 3, name: 'Timing Analysis', type: 'detector', status: 'ON', description: 'Measures time between actions', effectiveness: 78, triggers: 9 },
+  { id: 4, name: 'Fake API Endpoint', type: 'honeypot', status: 'OFF', description: 'Decoy endpoint that attracts bots', effectiveness: 90, triggers: 0 },
+  { id: 5, name: 'CSS Trap', type: 'honeypot', status: 'ON', description: 'Hidden elements via CSS', effectiveness: 88, triggers: 14 },
+  { id: 6, name: 'Browser Fingerprinting', type: 'detector', status: 'ON', description: 'Identifies suspicious browser configurations', effectiveness: 95, triggers: 21 }
+];
+
+// Function to update traps grid
+function updateTrapsGrid(traps, filter = 'all') {
+  const container = document.getElementById('traps-preview-list');
+  
+  // Filter traps if needed
+  let filteredTraps = traps;
+  if (filter !== 'all') {
+    filteredTraps = traps.filter(trap => {
+      if (filter === 'active') return trap.status === 'ON';
+      if (filter === 'honeypot') return trap.type === 'honeypot';
+      if (filter === 'detector') return trap.type === 'detector';
+      return true;
+    });
+  }
+  
+  // Limit to 6 traps for preview
+  filteredTraps = filteredTraps.slice(0, 6);
+  
+  // Update grid
+  if (filteredTraps.length === 0) {
+    container.innerHTML = '<div style="grid-column:span 3; padding:15px; text-align:center; color:#b5b5b5;">No traps matching the selected filter</div>';
+    return;
+  }
+  
+  container.innerHTML = '';
+  container.style.gridColumn = 'auto';
+  container.style.display = 'grid';
+  container.style.gridTemplateColumns = 'repeat(3, 1fr)';
+  container.style.gap = '15px';
+  
+  filteredTraps.forEach(trap => {
+    // Determine type icon and color
+    let typeIcon = '🍯';
+    let typeColor = '#ffd600';
+    if (trap.type === 'detector') {
+      typeIcon = '🔍';
+      typeColor = '#00b0ff';
+    }
+    
+    // Create trap card
+    const trapCard = document.createElement('div');
+    trapCard.className = 'trap-card';
+    trapCard.style.background = 'rgba(24, 31, 42, 0.7)';
+    trapCard.style.borderRadius = '8px';
+    trapCard.style.padding = '12px';
+    trapCard.style.position = 'relative';
+    trapCard.style.overflow = 'hidden';
+    
+    // Add status indicator
+    const statusIndicator = document.createElement('div');
+    statusIndicator.style.position = 'absolute';
+    statusIndicator.style.top = '0';
+    statusIndicator.style.right = '0';
+    statusIndicator.style.width = '10px';
+    statusIndicator.style.height = '10px';
+    statusIndicator.style.margin = '10px';
+    statusIndicator.style.borderRadius = '50%';
+    statusIndicator.style.background = trap.status === 'ON' ? '#6fffe9' : '#b5b5b5';
+    trapCard.appendChild(statusIndicator);
+    
+    // Add trap content
+    trapCard.innerHTML += `
+      <div style="display:flex; align-items:center; margin-bottom:6px;">
+        <span style="font-size:1.3em; margin-right:6px;">${typeIcon}</span>
+        <h4 style="margin:0; color:${typeColor}; font-size:0.95em;">${trap.name}</h4>
+      </div>
+      <div style="color:#b5b5b5; font-size:0.85em; margin-bottom:8px; height:32px; overflow:hidden;">${trap.description}</div>
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <div style="color:#b5b5b5; font-size:0.8em;">
+          Effectiveness: <span style="color:#6fffe9;">${trap.effectiveness}%</span>
+        </div>
+        <label class="switch">
+          <input type="checkbox" class="trap-toggle" data-id="${trap.id}" ${trap.status === 'ON' ? 'checked' : ''}>
+          <span class="slider round"></span>
+        </label>
+      </div>
+    `;
+    
+    container.appendChild(trapCard);
+  });
+  
+  // Add event listeners to toggle switches
+  document.querySelectorAll('.trap-toggle').forEach(toggle => {
+    toggle.addEventListener('change', (e) => {
+      const trapId = parseInt(e.target.getAttribute('data-id'));
+      const trap = trapsData.find(t => t.id === trapId);
+      if (trap) {
+        trap.status = e.target.checked ? 'ON' : 'OFF';
+        updateTrapStats();
+      }
+    });
+  });
+  
+  // Update stats
+  updateTrapStats();
+}
+
+// Function to update trap statistics
+function updateTrapStats() {
+  document.getElementById('trap-stat-total').textContent = trapsData.length;
+  document.getElementById('trap-stat-active').textContent = trapsData.filter(trap => trap.status === 'ON').length;
+  
+  const totalTriggers = trapsData.reduce((sum, trap) => sum + (trap.status === 'ON' ? trap.triggers : 0), 0);
+  document.getElementById('trap-stat-triggered').textContent = totalTriggers;
+  
+  const activeTraps = trapsData.filter(trap => trap.status === 'ON');
+  const avgEffectiveness = activeTraps.length > 0 
+    ? Math.round(activeTraps.reduce((sum, trap) => sum + trap.effectiveness, 0) / activeTraps.length) 
+    : 0;
+  document.getElementById('trap-stat-effectiveness').textContent = avgEffectiveness + '%';
+}
+
+// Function to fetch traps from API
+async function fetchTrapsPreview() {
+  try {
+    const res = await fetch('/api/traps');
+    const data = await res.json();
+    
+    // If we got real data, use it, otherwise use our simulated data
+    if (Array.isArray(data) && data.length > 0) {
+      // Convert API data to our format if needed
+      trapsData = data.map(trap => ({
+        id: trap.id || Math.floor(Math.random() * 1000),
+        name: trap.name,
+        type: trap.type || (Math.random() > 0.5 ? 'honeypot' : 'detector'),
+        status: trap.status || 'OFF',
+        description: trap.description || 'No description available',
+        effectiveness: trap.effectiveness || Math.floor(Math.random() * 30) + 70,
+        triggers: trap.triggers || Math.floor(Math.random() * 25)
+      }));
+    }
+    
+    // Update UI with the data
+    updateTrapsGrid(trapsData);
+    
+  } catch (e) {
+    console.error('Error fetching traps data:', e);
+    // Use default data if API fails
+    updateTrapsGrid(trapsData);
+  }
+}
+
+// Initialize traps on page load
+window.addEventListener('DOMContentLoaded', () => {
+  // Fetch initial traps
+  fetchTrapsPreview();
+  
+  // Set up filter select
+  document.getElementById('trap-filter-select').addEventListener('change', (e) => {
+    updateTrapsGrid(trapsData, e.target.value);
+  });
+  
+  // Set up deploy button
+  document.getElementById('deploy-trap').addEventListener('click', () => {
+    alert('New trap deployment dialog would open here');
+  });
+  
+  // Set up activate all button
+  document.getElementById('activate-all').addEventListener('click', () => {
+    trapsData.forEach(trap => trap.status = 'ON');
+    updateTrapsGrid(trapsData, document.getElementById('trap-filter-select').value);
+  });
+  
+  // Set up test traps button
+  document.getElementById('test-traps').addEventListener('click', () => {
+    alert('Testing all active traps...\n\nAll traps are functioning correctly!');
+  });
+});
+</script>
+
+<section id="settings-preview" class="section settings-preview">
+  <h2>Settings Preview</h2>
+  <div class="settings-container" style="background: rgba(35, 43, 58, 0.7); backdrop-filter: blur(10px); border-radius: 15px; padding: 20px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2); border: 1px solid rgba(111, 255, 233, 0.2);">
+    <!-- Settings header -->
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+      <h3 style="color:#6fffe9; margin:0; font-size:1.3em;">System Configuration</h3>
+      <div style="display:flex; align-items:center; gap:10px;">
+        <span id="settings-status" style="color:#6fffe9; font-size:0.9em;">All systems operational</span>
+        <div style="width:10px; height:10px; background:#6fffe9; border-radius:50%;"></div>
+      </div>
+    </div>
+    
+    <!-- Settings grid -->
+    <div class="settings-grid" style="display:grid; grid-template-columns:repeat(2, 1fr); gap:20px; margin-bottom:25px;">
+      <!-- Theme setting -->
+      <div class="setting-card" style="background: rgba(24, 31, 42, 0.7); border-radius:12px; padding:20px; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15); transition: transform 0.3s;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+          <h4 style="margin:0; color:#ffd600;">Theme</h4>
+          <div class="setting-toggle">
+            <button id="theme-light" class="theme-btn" style="background:rgba(255,255,255,0.9); color:#232b3a; border:none; border-radius:4px; padding:5px 10px; margin-right:5px; cursor:pointer; font-size:0.8em;">Light</button>
+            <button id="theme-dark" class="theme-btn active" style="background:#232b3a; color:#fff; border:none; border-radius:4px; padding:5px 10px; cursor:pointer; font-size:0.8em;">Dark</button>
+          </div>
+        </div>
+        <div style="color:#b5b5b5; font-size:0.9em;">Current theme: <span class="pill" id="preview-theme" style="display:inline-block; background:#232b3a; color:#6fffe9; padding:0.2rem 1rem; border-radius:1rem; margin-left:0.5rem; font-size:0.95rem;">...</span></div>
+        <div style="margin-top:10px; height:5px; background:rgba(255,255,255,0.1); border-radius:3px; overflow:hidden;">
+          <div style="height:100%; width:100%; background:linear-gradient(90deg, #6fffe9, #00b0ff); border-radius:3px;"></div>
+        </div>
+      </div>
+      
+      <!-- Detection Sensitivity setting -->
+      <div class="setting-card" style="background: rgba(24, 31, 42, 0.7); border-radius:12px; padding:20px; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15); transition: transform 0.3s;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+          <h4 style="margin:0; color:#ff5252;">Detection Sensitivity</h4>
+          <div class="setting-slider" style="width:120px; display:flex; align-items:center;">
+            <span style="color:#b5b5b5; font-size:0.8em;">Low</span>
+            <input type="range" id="sensitivity-slider" min="1" max="5" value="3" style="margin:0 10px; accent-color:#ff5252;">
+            <span style="color:#b5b5b5; font-size:0.8em;">High</span>
+          </div>
+        </div>
+        <div style="color:#b5b5b5; font-size:0.9em;">Current level: <span class="pill" id="preview-sensitivity" style="display:inline-block; background:#232b3a; color:#ff5252; padding:0.2rem 1rem; border-radius:1rem; margin-left:0.5rem; font-size:0.95rem;">...</span></div>
+        <div style="margin-top:10px; height:5px; background:rgba(255,255,255,0.1); border-radius:3px; overflow:hidden;">
+          <div id="sensitivity-bar" style="height:100%; width:60%; background:linear-gradient(90deg, #ff5252, #ff9100); border-radius:3px;"></div>
+        </div>
+      </div>
+      
+      <!-- Notifications setting -->
+      <div class="setting-card" style="background: rgba(24, 31, 42, 0.7); border-radius:12px; padding:20px; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15); transition: transform 0.3s;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+          <h4 style="margin:0; color:#00b0ff;">Notifications</h4>
+          <label class="switch" style="position:relative; display:inline-block; width:36px; height:20px;">
+            <input type="checkbox" id="notif-toggle" checked style="opacity:0; width:0; height:0;">
+            <span class="slider round" style="position:absolute; cursor:pointer; top:0; left:0; right:0; bottom:0; background-color:#888; transition:.4s; border-radius:20px;"></span>
+          </label>
+        </div>
+        <div style="color:#b5b5b5; font-size:0.9em;">Status: <span class="pill on" id="preview-notif" style="display:inline-block; background:#6fffe9; color:#181f2a; padding:0.2rem 1rem; border-radius:1rem; margin-left:0.5rem; font-size:0.95rem;">...</span></div>
+        <div style="margin-top:10px; color:#b5b5b5; font-size:0.85em;">
+          <span id="notif-types">Email, Browser, Slack</span>
+        </div>
+      </div>
+      
+      <!-- API Integration setting -->
+      <div class="setting-card" style="background: rgba(24, 31, 42, 0.7); border-radius:12px; padding:20px; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15); transition: transform 0.3s;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+          <h4 style="margin:0; color:#b388ff;">API Integration</h4>
+          <button id="api-config-btn" style="background:#b388ff; color:#232b3a; border:none; border-radius:4px; padding:5px 10px; cursor:pointer; font-size:0.8em;">Configure</button>
+        </div>
+        <div style="color:#b5b5b5; font-size:0.9em;">Status: <span class="pill" id="preview-api" style="display:inline-block; background:#232b3a; color:#b388ff; padding:0.2rem 1rem; border-radius:1rem; margin-left:0.5rem; font-size:0.95rem;">...</span></div>
+        <div style="margin-top:10px; color:#b5b5b5; font-size:0.85em;">
+          <span id="api-endpoints">3 endpoints connected</span>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Settings actions -->
+    <div style="display:flex; justify-content:space-between; margin-top:15px; align-items:center;">
+      <div style="display:flex; gap:10px;">
+        <button id="reset-settings" class="cta" style="background:#ff5252; color:#fff; font-size:0.9em; padding:8px 15px;">
+          Reset to Default
+        </button>
+        <button id="save-settings" class="cta" style="background:#6fffe9; color:#232b3a; font-size:0.9em; padding:8px 15px;">
+          Save Changes
+        </button>
+      </div>
+      <a href="settings.html" class="cta" style="background:#00b0ff; color:#232b3a; font-size:0.9em; padding:8px 15px;">
+        Advanced Settings
+      </a>
+    </div>
+  </div>
+</section>
+
+<script>
+// Settings data and UI interactions
+let settingsData = {
+  theme: 'dark',
+  sensitivity: 'High',
+  notifications: true,
+  api_integration: 'Configured',
+  notif_types: ['Email', 'Browser', 'Slack'],
+  api_endpoints: 3
+};
+
+// Function to update settings UI
+function updateSettingsUI(data) {
+  // Update theme buttons
+  document.querySelectorAll('.theme-btn').forEach(btn => {
+    btn.classList.remove('active');
+    if (btn.id === `theme-${data.theme.toLowerCase()}`) {
+      btn.classList.add('active');
+      btn.style.background = data.theme.toLowerCase() === 'dark' ? '#232b3a' : 'rgba(255,255,255,0.9)';
+      btn.style.color = data.theme.toLowerCase() === 'dark' ? '#fff' : '#232b3a';
+    } else {
+      btn.style.background = data.theme.toLowerCase() === 'dark' ? 'rgba(255,255,255,0.2)' : 'rgba(35,43,58,0.2)';
+      btn.style.color = data.theme.toLowerCase() === 'dark' ? '#b5b5b5' : '#555';
+    }
+  });
+  
+  // Update sensitivity slider
+  const sensitivityLevels = ['Very Low', 'Low', 'Medium', 'High', 'Very High'];
+  const sensitivityIndex = sensitivityLevels.indexOf(data.sensitivity);
+  if (sensitivityIndex !== -1) {
+    document.getElementById('sensitivity-slider').value = sensitivityIndex + 1;
+    document.getElementById('sensitivity-bar').style.width = `${(sensitivityIndex + 1) * 20}%`;
+  }
+  
+  // Update notification toggle
+  document.getElementById('notif-toggle').checked = data.notifications;
+  document.getElementById('notif-types').textContent = data.notif_types.join(', ');
+  
+  // Update API integration
+  document.getElementById('api-endpoints').textContent = `${data.api_endpoints} endpoints connected`;
+  
+  // Update pills
+  document.getElementById('preview-theme').textContent = data.theme.charAt(0).toUpperCase() + data.theme.slice(1);
+  document.getElementById('preview-sensitivity').textContent = data.sensitivity;
+  document.getElementById('preview-notif').textContent = data.notifications ? 'On' : 'Off';
+  document.getElementById('preview-notif').className = data.notifications ? 'pill on' : 'pill';
+  document.getElementById('preview-notif').style.background = data.notifications ? '#6fffe9' : '#232b3a';
+  document.getElementById('preview-notif').style.color = data.notifications ? '#181f2a' : '#b5b5b5';
+  document.getElementById('preview-api').textContent = data.api_integration;
+}
+
+// Function to fetch settings from API
+async function updateSettingsPreview() {
+  try {
+    const res = await fetch('http://localhost:5050/api/settings');
+    const data = await res.json();
+    
+    // If we got real data, use it, otherwise use our simulated data
+    if (data) {
+      settingsData = {
+        ...settingsData,
+        theme: data.theme || settingsData.theme,
+        sensitivity: data.sensitivity || settingsData.sensitivity,
+        notifications: data.notifications !== undefined ? data.notifications : settingsData.notifications,
+        api_integration: 'Configured'
+      };
+    }
+    
+    // Update UI with the data
+    updateSettingsUI(settingsData);
+    
+  } catch (e) {
+    console.error('Error fetching settings data:', e);
+    // Use default data if API fails
+    updateSettingsUI(settingsData);
+  }
+}
+
+// Initialize settings on page load
+window.addEventListener('DOMContentLoaded', () => {
+  // Fetch initial settings
+  updateSettingsPreview();
+  
+  // Set up theme buttons
+  document.getElementById('theme-light').addEventListener('click', () => {
+    settingsData.theme = 'Light';
+    updateSettingsUI(settingsData);
+  });
+  
+  document.getElementById('theme-dark').addEventListener('click', () => {
+    settingsData.theme = 'Dark';
+    updateSettingsUI(settingsData);
+  });
+  
+  // Set up sensitivity slider
+  document.getElementById('sensitivity-slider').addEventListener('input', (e) => {
+    const sensitivityLevels = ['Very Low', 'Low', 'Medium', 'High', 'Very High'];
+    settingsData.sensitivity = sensitivityLevels[e.target.value - 1];
+    document.getElementById('sensitivity-bar').style.width = `${e.target.value * 20}%`;
+    updateSettingsUI(settingsData);
+  });
+  
+  // Set up notification toggle
+  document.getElementById('notif-toggle').addEventListener('change', (e) => {
+    settingsData.notifications = e.target.checked;
+    updateSettingsUI(settingsData);
+  });
+  
+  // Set up API config button
+  document.getElementById('api-config-btn').addEventListener('click', () => {
+    alert('API Configuration dialog would open here');
+  });
+  
+  // Set up save button
+  document.getElementById('save-settings').addEventListener('click', () => {
+    document.getElementById('settings-status').textContent = 'Settings saved successfully';
+    setTimeout(() => {
+      document.getElementById('settings-status').textContent = 'All systems operational';
+    }, 3000);
+  });
+  
+  // Set up reset button
+  document.getElementById('reset-settings').addEventListener('click', () => {
+    if (confirm('Reset all settings to default values?')) {
+      settingsData = {
+        theme: 'Dark',
+        sensitivity: 'Medium',
+        notifications: true,
+        api_integration: 'Configured',
+        notif_types: ['Email', 'Browser', 'Slack'],
+        api_endpoints: 3
+      };
+      updateSettingsUI(settingsData);
+      document.getElementById('settings-status').textContent = 'Settings reset to defaults';
+      setTimeout(() => {
+        document.getElementById('settings-status').textContent = 'All systems operational';
+      }, 3000);
+    }
+  });
+});
+
+// Listen for settings updates from other parts of the app
+window.addEventListener('settings-updated', updateSettingsPreview);
+</script>
+
+<section id="faq" class="section faq">
+  <h2>Frequently Asked Questions</h2>
+  <div class="faq-list">
+    <div class="faq-q"><b>Is AegisAI compatible with any website?</b></div>
+    <div class="faq-a">Yes! It can be integrated with any web stack via API or script.</div>
+    <div class="faq-q"><b>Can it detect advanced AI bots?</b></div>
+    <div class="faq-a">AegisAI uses ML and behavior analysis to detect even LLM-based bots.</div>
+    <div class="faq-q"><b>Does it support alerts?</b></div>
+    <div class="faq-a">Yes, you can enable email alerts for all major events.</div>
+    <div class="faq-q"><b>Is my data secure?</b></div>
+    <div class="faq-a">All logs and analytics are stored securely and never shared.</div>
+  </div>
+</section>
+
+<section id="contact" class="section contact">
+  <h2>Contact & Demo</h2>
+  <form class="contact-form">
+    <input type="text" placeholder="Your Name" required />
+    <input type="email" placeholder="Your Email" required />
+    <textarea placeholder="Your Message" required></textarea>
+    <button type="submit" class="cta">Request a Demo</button>
+  </form>
+</section>
+
+<style>
+  body {
+    background: linear-gradient(135deg, #181f2a 0%, #263b5a 100%);
+    color: #f4f8fb;
+    font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+  }
+  .floating-section {
+    position: fixed;
+    top: 2em;
+    right: 2em;
+    background: linear-gradient(120deg, #232b3a 60%, #00bcd4 130%);
+    border-radius: 18px;
+    box-shadow: 0 6px 32px #0006, 0 1.5px 0 #00bcd4 inset;
+    padding: 2.2em 2.5em 2.2em 2.5em;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5em;
+    min-width: 280px;
+    border: 2px solid #00bcd4;
+  }
+  .floating-section h3 {
+    color: #ffd600;
+    margin-bottom: 0.7em;
+    letter-spacing: 1.2px;
+    font-weight: 700;
+    text-shadow: 0 2px 12px #ffd60055;
+  }
+  .dashboard-link {
+    display: flex;
+    align-items: center;
+    gap: 0.8em;
+    font-size: 1.17em;
+    text-decoration: none;
+    color: #232b3a;
+    background: linear-gradient(90deg, #ffd600 0%, #ffb300 100%);
+    padding: 0.95em 1.25em;
+    border-radius: 10px;
+    transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+    font-weight: 600;
+    box-shadow: 0 2px 12px #ffd60022;
+  }
+  .dashboard-link:hover {
+    background: linear-gradient(90deg, #00bcd4 0%, #64ffda 100%);
+    color: #181f2a;
+    box-shadow: 0 4px 20px #00bcd455;
+  }
+  .hero-sub {font-size:1.3rem;color:#6fffe9;margin-bottom:2rem;}
+  .feature-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:2rem;margin-top:2rem;}
+  .feature-card{background:#232b3a;border-radius:10px;padding:2rem 1.5rem;box-shadow:0 2px 12px #0002;transition:transform 0.2s;}
+  .feature-card:hover{transform:translateY(-4px) scale(1.03);}
+  .hiw-steps{margin:2rem 0 0 2rem;}
+  .dashboard-preview .dashboard-grid{margin-bottom:2rem;}
+  .text-right{text-align:right;}
+  .cta.small{font-size:0.95rem;padding:0.5rem 1.5rem;}
+  .pill{display:inline-block;background:#232b3a;color:#6fffe9;padding:0.2rem 1rem;border-radius:1rem;margin-right:0.5rem;font-size:0.95rem;}
+  .pill.on{background:#6fffe9;color:#181f2a;}
+  .faq-list{margin-top:1.5rem;}
+  .faq-q{margin-top:1rem;font-weight:700;}
+  .faq-a{margin-bottom:0.5rem;color:#6fffe9;}
+  .contact-form{display:flex;flex-direction:column;gap:1rem;max-width:400px;margin:auto;}
+  .contact-form input,.contact-form textarea{padding:0.75rem 1rem;border-radius:8px;border:none;background:#232b3a;color:#6fffe9;}
+  .contact-form button{align-self:flex-end;}
+</style>
+
+  <footer>
+    &copy; 2025 AegisAI — Adaptive Shield Against AI Attacks
+  </footer>
+<!-- Floating Features Quick Access -->
+<div id="floating-features" style="position:fixed;bottom:32px;right:32px;z-index:1000;">
+  <button id="features-toggle" style="background:#00b0ff;color:#fff;border:none;border-radius:50%;width:54px;height:54px;box-shadow:0 2px 10px #0006;font-size:2rem;cursor:pointer;outline:none;">☰</button>
+  <div id="features-list" style="display:none;position:absolute;bottom:70px;right:0;width:320px;background:#232b3a;border-radius:16px;padding:1.2em 1em 1em 1em;box-shadow:0 4px 32px #000a;">
+    <div style="font-weight:700;font-size:1.15em;margin-bottom:0.8em;color:#00b0ff;">AegisAI Dashboards</div>
+    <ul style="list-style:none;padding:0;margin:0;">
+      <li style="margin-bottom:0.7em;"><a href="honeypot_dashboard.html" style="color:#6fffe9;text-decoration:none;font-weight:600;">🪤 Honeypot Trap Dashboard</a></li>
+      <li style="margin-bottom:0.7em;"><a href="script_management.html" style="color:#ffd600;text-decoration:none;font-weight:600;">🗂️ Script Management</a></li>
+      <li style="margin-bottom:0.7em;"><a href="analytics_dashboard.html" style="color:#00e676;text-decoration:none;font-weight:600;">📊 Analytics Dashboard</a></li>
+    </ul>
+  </div>
+</div>
+<script>
+const toggleBtn = document.getElementById('features-toggle');
+const featuresList = document.getElementById('features-list');
+toggleBtn.onclick = function() {
+  featuresList.style.display = featuresList.style.display === 'none' ? '' : 'none';
+  toggleBtn.textContent = featuresList.style.display === 'none' ? '☰' : '×';
+};
+document.addEventListener('click', function(e){
+  if(!toggleBtn.contains(e.target) && !featuresList.contains(e.target)) {
+    featuresList.style.display = 'none';
+    toggleBtn.textContent = '☰';
+  }
+});
+</script>
+
+</body>
+</html>

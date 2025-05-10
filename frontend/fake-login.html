@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Fake Login</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    body { background: #181f2a; color: #fff; min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+    .login-msg { font-size: 2em; font-weight: bold; color: #6fffe9; text-align: center; }
+    .login-warning { color: #ff6f91; font-size: 1.1em; margin-top: 1em; }
+    .login-form { margin-top: 2em; }
+    .login-form input { padding: 0.6em 1em; border-radius: 6px; border: 1px solid #b5b5b5; margin-bottom: 1em; width: 100%; }
+    .login-form button { background: #0e8cf7; color: #fff; border: none; border-radius: 6px; padding: 0.6em 2em; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <div>
+    <div class="login-msg">Fake Login Page</div>
+    <div class="login-warning">Suspicious activity detected. This is not a real login.</div>
+    <form class="login-form">
+      <input type="text" placeholder="Username" disabled><br>
+      <input type="password" placeholder="Password" disabled><br>
+      <button disabled>Login</button>
+    </form>
+  </div>
+</body>
+</html>

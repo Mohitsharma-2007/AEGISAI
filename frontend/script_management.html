@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Script Management - AegisAI</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="console.css">
+  <style>
+    body {
+      background: linear-gradient(135deg, #181f2a 0%, #263b5a 100%);
+      color: #f4f8fb;
+      font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
+      min-height: 100vh;
+    }
+    .dashboard-container {
+      max-width: 950px;
+      margin: 2.5em auto;
+      background: rgba(35,43,58,0.95);
+      border-radius: 18px;
+      padding: 2.2em 2.5em;
+      box-shadow: 0 6px 32px #0006, 0 1.5px 0 #00bcd4 inset;
+      border: 1.5px solid #24364d;
+    }
+    h2 {
+      color: #64ffda;
+      letter-spacing: 1.5px;
+      font-weight: 700;
+      margin-bottom: 0.7em;
+      text-shadow: 0 2px 12px #00bcd455;
+    }
+    table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      margin-top: 1.2em;
+      background: rgba(29,37,53,0.96);
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 2px 14px #00bcd422;
+    }
+    th, td {
+      padding: 0.8em 1.2em;
+      border-bottom: 1.5px solid #27334a;
+      text-align: left;
+      font-size: 1.08em;
+    }
+    th {
+      background: linear-gradient(90deg, #00bcd4 0%, #64ffda 100%);
+      color: #232b3a;
+      font-weight: 600;
+      border: none;
+      letter-spacing: 0.5px;
+    }
+    tr:last-child td {
+      border-bottom: none;
+    }
+    .status-available {
+      color: #00e676;
+      font-weight: bold;
+      text-shadow: 0 1px 8px #00e67644;
+    }
+    .status-missing {
+      color: #ff5252;
+      font-weight: bold;
+      text-shadow: 0 1px 8px #ff525244;
+    }
+    .source-local {
+      color: #ffd600;
+      font-weight: 500;
+    }
+    .source-downloaded {
+      color: #00b0ff;
+      font-weight: 500;
+    }
+    .toggle-btn {
+      background: linear-gradient(90deg, #00bcd4 0%, #64ffda 100%);
+      color: #232b3a;
+      border: none;
+      padding: 0.55em 1.3em;
+      border-radius: 7px;
+      cursor: pointer;
+      font-weight: 600;
+      box-shadow: 0 2px 8px #00bcd422;
+      transition: background 0.2s, color 0.2s;
+    }
+    .toggle-btn:hover:not([disabled]) {
+      background: linear-gradient(90deg, #64ffda 0%, #00bcd4 100%);
+      color: #181f2a;
+    }
+    .toggle-btn[disabled] {
+      background: #293040;
+      color: #888;
+      cursor: not-allowed;
+      opacity: 0.7;
+    }
+    .scan-btn {
+      background: linear-gradient(90deg, #ffd600 0%, #ffb300 100%);
+      color: #232b3a;
+      border: none;
+      padding: 0.6em 1.3em;
+      border-radius: 7px;
+      cursor: pointer;
+      margin-bottom: 1em;
+      font-weight: 600;
+      box-shadow: 0 2px 12px #ffd60022;
+      transition: background 0.2s, color 0.2s;
+    }
+    .scan-btn:hover {
+      background: linear-gradient(90deg, #ffe066 0%, #ffd600 100%);
+      color: #181f2a;
+    }
+    #login-modal {
+      background: linear-gradient(135deg, #181f2aee 0%, #263b5aee 100%);
+    }
+    #login-form {
+      background: #232b3a;
+      border: 2px solid #00bcd4;
+      box-shadow: 0 2px 24px #00bcd466;
+    }
+    #login-form h3 {
+      color: #64ffda;
+      text-shadow: 0 2px 12px #00bcd455;
+    }
+    #login-form input {
+      background: #222b3a;
+      color: #f4f8fb;
+      border: 1.5px solid #00bcd4;
+      outline: none;
+      font-size: 1em;
+      transition: border 0.2s;
+    }
+    #login-form input:focus {
+      border: 1.5px solid #64ffda;
+    }
+    #login-form button {
+      background: linear-gradient(90deg, #00bcd4 0%, #64ffda 100%);
+      color: #232b3a;
+      font-weight: 600;
+      box-shadow: 0 2px 12px #00bcd422;
+      transition: background 0.2s, color 0.2s;
+    }
+    #login-form button:hover {
+      background: linear-gradient(90deg, #64ffda 0%, #00bcd4 100%);
+      color: #181f2a;
+    }
+    #no-scripts {
+      color: #ff5252;
+      font-size: 1.1em;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="dashboard-container">
+    <h2>Script Management</h2>
+    <button class="scan-btn" onclick="scanScripts()">Rescan Scripts</button>
+    <table id="script-table">
+      <thead>
+        <tr>
+          <th>Key</th>
+          <th>Path</th>
+          <th>Status</th>
+          <th>Source</th>
+          <th>Enabled</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+    <div id="no-scripts" style="margin-top:2em;color:#ff5252;display:none;">No scripts found.</div>
+  </div>
+  <!-- Login Modal -->
+  <div id="login-modal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:#000a;z-index:9999;align-items:center;justify-content:center;">
+    <form id="login-form" style="background:#232b3a;padding:2em 2.5em;border-radius:14px;box-shadow:0 2px 24px #000b;display:flex;flex-direction:column;gap:1em;min-width:320px;">
+      <h3 style="color:#00b0ff;margin-bottom:0.5em;">Admin/Analyst Login</h3>
+      <input type="text" id="login-user" placeholder="Username" required style="padding:0.7em 1em;border-radius:7px;border:none;" autofocus>
+      <input type="password" id="login-pass" placeholder="Password" required style="padding:0.7em 1em;border-radius:7px;border:none;">
+      <button type="submit" class="scan-btn" style="margin-top:0.5em;">Login</button>
+      <div id="login-error" style="color:#ff5252;font-size:1em;display:none;"></div>
+    </form>
+  </div>
+  <script>
+    let isAuth = false;
+    async function fetchScripts(retry) {
+      const res = await fetch('/api/scripts');
+      if (res.status === 401 || res.status === 403) {
+        if (!retry) showLoginModal();
+        else renderTable({});
+        return;
+      }
+      const data = await res.json();
+      renderTable(data.scripts || {});
+    }
+    function renderTable(scripts) {
+      const tbody = document.querySelector('#script-table tbody');
+      tbody.innerHTML = '';
+      const keys = Object.keys(scripts);
+      if(!keys.length) {
+        document.getElementById('no-scripts').style.display = '';
+        return;
+      }
+      document.getElementById('no-scripts').style.display = 'none';
+      for(const key of keys) {
+        const s = scripts[key];
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${key}</td><td>${s.path}</td><td class="status-${s.status}">${s.status}</td><td class="source-${s.source}">${s.source}</td><td><button class="toggle-btn" onclick="toggleScript('${key}', ${!s.enabled})" ${s.status!=='available'?'disabled':''}>${s.enabled?'Disable':'Enable'}</button></td>`;
+        tbody.appendChild(tr);
+      }
+    }
+    async function toggleScript(key, enable) {
+      const res = await fetch('/api/scripts/toggle', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({key, enable})
+      });
+      if(res.status === 401 || res.status === 403) { showLoginModal(); return; }
+      fetchScripts();
+    }
+    async function scanScripts() {
+      const res = await fetch('/api/scripts/scan', {method: 'POST'});
+      if(res.status === 401 || res.status === 403) { showLoginModal(); return; }
+      fetchScripts();
+    }
+    function showLoginModal() {
+      document.getElementById('login-modal').style.display = 'flex';
+      document.getElementById('login-error').style.display = 'none';
+    }
+    document.getElementById('login-form').onsubmit = async function(e) {
+      e.preventDefault();
+      const user = document.getElementById('login-user').value;
+      const pass = document.getElementById('login-pass').value;
+      const res = await fetch('/api/login', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({username: user, password: pass})
+      });
+      if(res.ok) {
+        document.getElementById('login-modal').style.display = 'none';
+        fetchScripts(true);
+      } else {
+        document.getElementById('login-error').textContent = 'Invalid credentials. Try admin/adminpass or analyst/analystpass.';
+        document.getElementById('login-error').style.display = '';
+      }
+    };
+    window.onload = fetchScripts;
+  </script>
+</body>
+</html>

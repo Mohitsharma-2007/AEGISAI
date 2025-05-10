@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script src="main.js" defer></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AegisAI Detection Traps</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800&family=Poppins:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <nav class="navbar">
+  <button id="theme-toggle" class="api-btn" style="float:right;margin:8px;">Toggle Theme</button>
+    <div class="logo">AegisAI</div>
+    <ul class="nav-links">
+  <li><a href="index.html">Home</a></li>
+  <li><a href="dashboard.html">Dashboard</a></li>
+  <li><a href="logs.html">Attack Logs</a></li>
+  <li><a href="traps.html">Traps</a></li>
+  <li><a href="settings.html">Settings</a></li>
+</ul>
+  </nav>
+  <section class="section traps">
+  <h2>Detection Traps</h2>
+  <div class="trap-list" id="trap-list">
+  <div>Loading...</div>
+</div>
+<script>
+let trapCache = {};
+function updateTrapLastTriggered(trapName, timestamp) {
+  if (!trapCache[trapName]) trapCache[trapName] = {};
+  trapCache[trapName].last_triggered = timestamp;
+}
+function loadTraps() {
+  fetch('http://localhost:5050/api/traps').then(r=>r.json()).then(traps=>{
+    const list = document.getElementById('trap-list');
+    list.innerHTML = '';
+    traps.forEach(trap => {
+      // Use last_triggered from cache if available
+      let last = trap.last_triggered || (trapCache[trap.name] && trapCache[trap.name].last_triggered) || '';
+      const div = document.createElement('div');
+      div.className = 'trap';
+      div.innerHTML = `<b>${trap.name}</b> <span class="trap-badge ${trap.status==='ON'?'on':'off'}">${trap.status}</span> <button class="trap-toggle">${trap.status==='ON'?'Disable':'Enable'}</button> <span class="trap-last">${last ? 'Last: '+last : ''}</span>`;
+      div.querySelector('.trap-toggle').onclick = () => {
+        const newStatus = trap.status === 'ON' ? 'OFF' : 'ON';
+        fetch('http://localhost:5050/api/traps/toggle', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name: trap.name, status: newStatus })
+        })
+        .then(r => r.json())
+        .then(result => {
+          showTrapFeedback(result.success ? `Trap '${trap.name}' is now ${newStatus}` : `Failed to update trap '${trap.name}'`, result.success);
+          if(result.success) loadTraps();
+        })
+        .catch(() => showTrapFeedback('Network error', false));
+      };
+      list.appendChild(div);
+    });
+  });
+}
+function showTrapFeedback(msg, ok) {
+  let el = document.getElementById('trap-feedback');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'trap-feedback';
+    el.style.marginTop = '1rem';
+    document.getElementById('trap-list').after(el);
+  }
+  el.textContent = msg;
+  el.style.color = ok ? '#00e676' : '#ff1744';
+  setTimeout(()=>{el.textContent='';}, 1800);
+}
+// Real-time updates from dashboard stream
+function setupTrapRealtime() {
+  let fallbackInterval = null;
+  try {
+    const es = new EventSource('http://localhost:5050/api/dashboard/stream');
+    es.onmessage = function(ev) {
+      try {
+        const log = JSON.parse(ev.data);
+        if (log.type === 'Trap' && log.summary) {
+          // e.g. summary: 'Honeypot Field triggered'
+          const m = log.summary.match(/^(.*?) triggered/);
+          if (m) {
+            updateTrapLastTriggered(m[1], log.timestamp);
+            loadTraps();
+          }
+        }
+      } catch(e) {}
+    };
+    es.onerror = function() {
+      if (!fallbackInterval) fallbackInterval = setInterval(loadTraps, 5000);
+    };
+    loadTraps();
+  } catch(e) {
+    fallbackInterval = setInterval(loadTraps, 5000);
+    loadTraps();
+  }
+}
+setupTrapRealtime();
+</script>
+  <div class="trap-explain">
+    <h3>Trap Explanations</h3>
+    <ul>
+      <li><b>Honeypot Field:</b> Invisible form field to catch bots.</li>
+      <li><b>Randomized CAPTCHA:</b> Dynamic CAPTCHA to block automated scripts.</li>
+      <li><b>Behavior Puzzle:</b> Challenge based on human-like behavior.</li>
+    </ul>
+  </div>
+</section>
+  <footer>
+    &copy; 2025 AegisAI — Adaptive Shield Against AI Attacks
+  </footer>
+
+<style>
+.trap-toggle{margin-left:1rem;padding:0.3rem 1rem;border-radius:8px;background:#6fffe9;color:#181f2a;font-weight:700;border:none;cursor:pointer;}
+.trap-badge{display:inline-block;padding:0.2em 0.9em;border-radius:8px;font-weight:bold;margin-left:0.7em;}
+.trap-badge.on{background:#00e676;color:#232b3a;}
+.trap-badge.off{background:#ff1744;color:#fff;}
+.trap-last{color:#b5b5b5;font-size:0.96em;margin-left:1em;}
+.trap-explain{margin-top:2rem;}
+.trap-explain ul{list-style:none;padding:0;}
+.trap-explain li{margin-bottom:0.5rem;}
+</style>
+</body>
+</html>

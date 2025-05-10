@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script src="main.js" defer></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AegisAI Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800&family=Poppins:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <nav class="navbar">
+  <button id="theme-toggle" class="api-btn" style="float:right;margin:8px;">Toggle Theme</button>
+    <div class="logo">AegisAI</div>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="dashboard.html">Dashboard</a></li>
+      <li><a href="contact.html">Contact Us</a></li>
+      <li><a href="ai-attack-lab.html">AI Attack Lab</a></li>
+      <li><a href="logs.html">Attack Logs</a></li>
+      <li><a href="traps.html">Traps</a></li>
+      <li><a href="console.html" style="background:#ffd600;color:#232b3a;border-radius:7px;padding:0.25em 1.1em;margin-left:0.7em;font-weight:600;">Attack Console</a></li>
+      <li><a href="settings.html">Settings</a></li>
+    </ul>
+  </nav>
+  <section class="section dashboard">
+  <h2>Dashboard</h2>
+  <div class="dashboard-grid" id="dashboard-cards">
+    <div class="card" style="background: rgba(24, 31, 42, 0.7); border-radius:12px; padding:20px; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15); border-left: 4px solid #00b0ff; transition: transform 0.3s;">
+      <div class="big-number" id="preview-bots" style="font-size:2.5em; font-weight:bold; color:#00b0ff;">...</div>
+      <div class="label" style="color:#b5b5b5;">Detected Bots (Today)</div>
+      <div class="trend" id="bots-trend" style="font-size:0.9em; margin-top:10px; color:#00b0ff;">+0% from yesterday</div>
+    </div>
+    <div class="card" style="background: rgba(24, 31, 42, 0.7); border-radius:12px; padding:20px; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15); border-left: 4px solid #ffd600; transition: transform 0.3s;">
+      <div class="big-number" id="preview-blocks" style="font-size:2.5em; font-weight:bold; color:#ffd600;">...</div>
+      <div class="label" style="color:#b5b5b5;">Blocked Attempts (Today)</div>
+      <div class="trend" id="blocks-trend" style="font-size:0.9em; margin-top:10px; color:#ffd600;">+0% from yesterday</div>
+    </div>
+    <div class="card" style="background: rgba(24, 31, 42, 0.7); border-radius:12px; padding:20px; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15); border-left: 4px solid #6fffe9; transition: transform 0.3s;">
+      <div class="big-number" id="preview-rating" style="font-size:2.5em; font-weight:bold; color:#6fffe9;">...</div>
+      <div class="label" style="color:#b5b5b5;">Security Rating</div>
+      <div class="trend" id="rating-trend" style="font-size:0.9em; margin-top:10px; color:#6fffe9;">Excellent</div>
+    </div>
+  </div>
+
+  <!-- Charts section -->
+  <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-top:25px;">
+    <div style="background: rgba(24, 31, 42, 0.7); border-radius:12px; padding:15px; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);">
+      <h3 style="color:#6fffe9; margin-bottom:10px; font-size:1.1em; text-align:center;">Attack Distribution</h3>
+      <div style="height:150px; width:100%; position:relative;">
+        <canvas id="attack-distribution-chart"></canvas>
+      </div>
+    </div>
+    <div style="background: rgba(24, 31, 42, 0.7); border-radius:12px; padding:15px; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);">
+      <h3 style="color:#6fffe9; margin-bottom:10px; font-size:1.1em; text-align:center;">Threat Level Timeline</h3>
+      <div style="height:150px; width:100%; position:relative;">
+        <canvas id="threat-timeline-chart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- Threat graph -->
+  <div style="margin:2em 0 2em 0; text-align:center; background: rgba(24, 31, 42, 0.7); border-radius:12px; padding:15px; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);">
+    <h3 style="color:#6fffe9; margin-bottom:10px; font-size:1.1em; text-align:center;">Threat Analysis</h3>
+    <canvas id="threat-graph" width="700" height="220" style="border-radius:8px;"></canvas>
+  </div>
+
+  <!-- Recent events -->
+  <div class="recent-events" style="background: rgba(24, 31, 42, 0.7); border-radius:12px; padding:20px; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15); margin-top:25px;">
+    <h3 style="color:#6fffe9; margin-bottom:15px;">Recent Threat Events</h3>
+    <ul id="recent-events-list" style="list-style-type:none; padding:0;">
+      <li style="padding:10px; border-bottom:1px solid #2c3e50; color:#e0e0e0;">Loading...</li>
+    </ul>
+  </div>
+
+  <!-- Security rating -->
+  <div class="security-rating" style="background: rgba(24, 31, 42, 0.7); border-radius:12px; padding:20px; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15); margin-top:25px;">
+    <h3 style="color:#6fffe9; margin-bottom:15px;">Security Rating</h3>
+    <div class="rating-bar" style="height:20px; background:#2c3e50; border-radius:10px; overflow:hidden;">
+      <div class="rating-fill" id="rating-fill" style="width:0%; height:100%; background:linear-gradient(90deg, #00e676, #6fffe9);"></div>
+    </div>
+    <span id="rating-label" style="display:block; margin-top:10px; color:#e0e0e0; font-weight:bold;">...</span>
+  </div>
+
+  <!-- Dashboard actions -->
+  <div style="display:flex; justify-content:space-between; margin-top:25px; align-items:center;">
+    <div style="display:flex; gap:10px;">
+      <button id="refresh-dashboard" class="cta" style="background:#6fffe9; color:#232b3a; font-size:0.9em; padding:8px 15px;">
+        <span id="last-updated">Last updated: Just now</span>
+      </button>
+      <button id="export-dashboard" class="cta" style="background:#ffd600; color:#232b3a; font-size:0.9em; padding:8px 15px;">
+        Export Data
+      </button>
+    </div>
+    <button id="simulate-attack" class="cta" style="background:#ff1744; color:#fff; font-size:0.9em; padding:8px 15px;">
+      Simulate Attack
+    </button>
+  </div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
+<script>
+let logs = [];
+let fallbackInterval = null;
+let attackDistributionChart, threatTimelineChart;
+
+function updateDashboard(data) {
+  // Update cards
+  document.getElementById('preview-bots').textContent = data.bots_today;
+  document.getElementById('preview-blocks').textContent = data.blocked_today;
+  document.getElementById('preview-rating').textContent = data.security_rating + '%';
+  
+  // Update trends
+  const botsTrend = ((data.bots_today - data.bots_yesterday) / Math.max(data.bots_yesterday, 1) * 100).toFixed(1);
+  const blocksTrend = ((data.blocked_today - data.blocked_yesterday) / Math.max(data.blocked_yesterday, 1) * 100).toFixed(1);
+  
+  document.getElementById('bots-trend').textContent = `${botsTrend > 0 ? '+' : ''}${botsTrend}% from yesterday`;
+  document.getElementById('blocks-trend').textContent = `${blocksTrend > 0 ? '+' : ''}${blocksTrend}% from yesterday`;
+  
+  // Update rating
+  let ratingText = "Poor";
+  if (data.security_rating >= 90) ratingText = "Excellent";
+  else if (data.security_rating >= 70) ratingText = "Good";
+  else if (data.security_rating >= 50) ratingText = "Average";
+  
+  document.getElementById('rating-trend').textContent = ratingText;
+  document.getElementById('rating-fill').style.width = data.security_rating + '%';
+  document.getElementById('rating-label').textContent = data.security_rating + '% (' + ratingText + ')';
+  
+  // Update events
+  logs = data.recent_events || [];
+  renderEvents();
+  drawThreatGraph();
+  updateCharts(data);
+  
+  // Update last updated time
+  document.getElementById('last-updated').textContent = 'Last updated: ' + moment().format('HH:mm:ss');
+}
+
+function renderEvents() {
+  const ul = document.getElementById('recent-events-list');
+  ul.innerHTML = logs.map(e=>`<li style="padding:10px; border-bottom:1px solid #2c3e50; color:#e0e0e0;">${e.timestamp} — ${e.type} — ${e.status}${e.summary ? ' — <span style=\'color:#b5b5b5\'>'+e.summary+'</span>' : ''}</li>`).join('');
+}
+
+function drawThreatGraph() {
+  const ctx = document.getElementById('threat-graph').getContext('2d');
+  ctx.clearRect(0,0,700,220);
+  const types = ['Bot','AI Agent','Unknown'];
+  const statuses = ['Blocked','Confused','Escaped'];
+  let counts = {Bot:0,'AI Agent':0,Unknown:0,Blocked:0,Confused:0,Escaped:0};
+  logs.forEach(l=>{ counts[l.type] = (counts[l.type]||0)+1; counts[l.status]=(counts[l.status]||0)+1; });
+  // Bars
+  ctx.font = 'bold 14px Segoe UI';
+  let x = 60;
+  let y = 170;
+  let barW = 40;
+  let max = Math.max(...Object.values(counts),1);
+  types.forEach((t,i)=>{
+    let h = (counts[t]||0)/max*120;
+    ctx.fillStyle = ['#6fffe9','#0e8cf7','#b5b5b5'][i];
+    ctx.fillRect(x+i*barW, y-h, barW-8, h);
+    ctx.fillStyle = '#fff';
+    ctx.fillText(t, x+i*barW+2, y+18);
+    ctx.fillText(counts[t]||0, x+i*barW+2, y-h-8);
+  });
+  statuses.forEach((s,i)=>{
+    let h = (counts[s]||0)/max*120;
+    ctx.fillStyle = ['#ff1744','#ffc400','#00e676'][i];
+    ctx.fillRect(x+160+i*barW, y-h, barW-8, h);
+    ctx.fillStyle = '#fff';
+    ctx.fillText(s, x+160+i*barW+2, y+18);
+    ctx.fillText(counts[s]||0, x+160+i*barW+2, y-h-8);
+  });
+}
+
+function initCharts() {
+  // Attack Distribution Chart
+  const attackCtx = document.getElementById('attack-distribution-chart').getContext('2d');
+  attackDistributionChart = new Chart(attackCtx, {
+    type: 'doughnut',
+    data: {
+      labels: ['Bot Attacks', 'AI/LLM Attacks', 'Human Attacks', 'Other'],
+      datasets: [{
+        data: [65, 20, 10, 5],
+        backgroundColor: ['#00b0ff', '#6fffe9', '#ffd600', '#b5b5b5'],
+        borderWidth: 0
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'right',
+          labels: {
+            color: '#e0e0e0',
+            font: {
+              size: 11
+            }
+          }
+        }
+      }
+    }
+  });
+  
+  // Threat Timeline Chart
+  const timelineCtx = document.getElementById('threat-timeline-chart').getContext('2d');
+  threatTimelineChart = new Chart(timelineCtx, {
+    type: 'line',
+    data: {
+      labels: ['6h', '5h', '4h', '3h', '2h', '1h', 'Now'],
+      datasets: [{
+        label: 'Threat Level',
+        data: [20, 35, 25, 45, 30, 55, 40],
+        borderColor: '#6fffe9',
+        backgroundColor: 'rgba(111, 255, 233, 0.1)',
+        borderWidth: 2,
+        fill: true,
+        tension: 0.4
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        y: {
+          beginAtZero: true,
+          grid: {
+            color: 'rgba(255, 255, 255, 0.1)'
+          },
+          ticks: {
+            color: '#b5b5b5'
+          }
+        },
+        x: {
+          grid: {
+            color: 'rgba(255, 255, 255, 0.1)'
+          },
+          ticks: {
+            color: '#b5b5b5'
+          }
+        }
+      },
+      plugins: {
+        legend: {
+          display: false
+        }
+      }
+    }
+  });
+}
+
+function updateCharts(data) {
+  // Update attack distribution chart if it exists
+  if (attackDistributionChart) {
+    const attackTypes = {
+      'Bot': 0,
+      'AI Agent': 0,
+      'Human': 0,
+      'Unknown': 0
+    };
+    
+    // Count attack types from logs
+    logs.forEach(log => {
+      attackTypes[log.type] = (attackTypes[log.type] || 0) + 1;
+    });
+    
+    attackDistributionChart.data.datasets[0].data = [
+      attackTypes['Bot'] || 0,
+      attackTypes['AI Agent'] || 0,
+      attackTypes['Human'] || 0,
+      attackTypes['Unknown'] || 0
+    ];
+    
+    attackDistributionChart.update();
+  }
+  
+  // Update threat timeline chart if it exists
+  if (threatTimelineChart) {
+    // Generate hourly data for the last 6 hours
+    const hourlyData = [];
+    const hourLabels = [];
+    
+    for (let i = 6; i >= 0; i--) {
+      const hour = moment().subtract(i, 'hours');
+      hourLabels.push(i === 0 ? 'Now' : `${i}h`);
+      
+      // Generate a random threat level between 20-60 for demo purposes
+      // In a real app, this would come from actual data
+      const threatLevel = Math.floor(Math.random() * 40) + 20;
+      hourlyData.push(threatLevel);
+    }
+    
+    threatTimelineChart.data.labels = hourLabels;
+    threatTimelineChart.data.datasets[0].data = hourlyData;
+    threatTimelineChart.update();
+  }
+}
+
+function pollDashboard() {
+  fetch('http://localhost:5050/api/dashboard')
+    .then(r => r.json())
+    .then(updateDashboard)
+    .catch(error => {
+      console.error('Error fetching dashboard data:', error);
+      // Generate fallback data if API is not available
+      const fallbackData = {
+        bots_today: Math.floor(Math.random()*100)+50,
+        blocked_today: Math.floor(Math.random()*80)+30,
+        security_rating: Math.floor(Math.random()*20)+80,
+        bots_yesterday: Math.floor(Math.random()*90)+40,
+        blocked_yesterday: Math.floor(Math.random()*70)+25,
+        recent_events: [
+          {timestamp:'2023-06-01 08:45:12', type:'Bot', status:'Blocked', summary:'Credential stuffing attempt'},
+          {timestamp:'2023-06-01 08:42:31', type:'Bot', status:'Blocked', summary:'Form spam'},
+          {timestamp:'2023-06-01 08:40:19', type:'AI Agent', status:'Confused', summary:'Prompt injection attempt'},
+          {timestamp:'2023-06-01 08:38:44', type:'Bot', status:'Blocked', summary:'Content scraping'},
+          {timestamp:'2023-06-01 08:35:22', type:'Unknown', status:'Escaped', summary:'Suspicious activity'},
+        ]
+      };
+      updateDashboard(fallbackData);
+    });
+}
+
+// Function to simulate an attack
+function simulateAttack() {
+  const attackTypes = ['Bot', 'AI Agent', 'Human', 'Unknown'];
+  const attackStatuses = ['Blocked', 'Confused', 'Escaped'];
+  const attackSummaries = [
+    'Credential stuffing attempt',
+    'Form spam',
+    'Prompt injection attempt',
+    'Content scraping',
+    'SQL injection attempt',
+    'XSS attack',
+    'CSRF attack',
+    'DDoS attempt',
+    'Brute force login',
+    'API abuse'
+  ];
+  
+  // Generate a random attack
+  const attackType = attackTypes[Math.floor(Math.random() * attackTypes.length)];
+  const attackStatus = attackStatuses[Math.floor(Math.random() * attackStatuses.length)];
+  const attackSummary = attackSummaries[Math.floor(Math.random() * attackSummaries.length)];
+  
+  // Create a new log entry
+  const newLog = {
+    timestamp: moment().format('YYYY-MM-DD HH:mm:ss'),
+    type: attackType,
+    status: attackStatus,
+    summary: attackSummary
+  };
+  
+  // Add to logs and update UI
+  logs.unshift(newLog);
+  if (logs.length > 10) logs.pop(); // Keep only the 10 most recent logs
+  
+  renderEvents();
+  drawThreatGraph();
+  updateCharts();
+  
+  // Update counters
+  const botsElement = document.getElementById('preview-bots');
+  const blocksElement = document.getElementById('preview-blocks');
+  
+  if (attackType === 'Bot' || attackType === 'AI Agent') {
+    botsElement.textContent = parseInt(botsElement.textContent) + 1;
+  }
+  
+  if (attackStatus === 'Blocked') {
+    blocksElement.textContent = parseInt(blocksElement.textContent) + 1;
+  }
+  
+  // Show notification
+  const notification = document.createElement('div');
+  notification.style = `
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: rgba(24, 31, 42, 0.9);
+    border-left: 4px solid ${attackStatus === 'Blocked' ? '#00e676' : attackStatus === 'Confused' ? '#ffd600' : '#ff1744'};
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    color: #e0e0e0;
+    max-width: 300px;
+  `;
+  
+  notification.innerHTML = `
+    <div style="font-weight: bold; margin-bottom: 5px; color: ${attackStatus === 'Blocked' ? '#00e676' : attackStatus === 'Confused' ? '#ffd600' : '#ff1744'}">
+      ${attackStatus} ${attackType} Attack
+    </div>
+    <div>${attackSummary}</div>
+    <div style="font-size: 0.8em; margin-top: 5px; color: #b5b5b5">${moment().format('HH:mm:ss')}</div>
+  `;
+  
+  document.body.appendChild(notification);
+  
+  // Remove notification after 5 seconds
+  setTimeout(() => {
+    notification.style.opacity = '0';
+    notification.style.transition = 'opacity 0.5s';
+    setTimeout(() => notification.remove(), 500);
+  }, 5000);
+}
+
+// Function to export dashboard data
+function exportDashboardData() {
+  const dashboardData = {
+    metrics: {
+      bots_today: document.getElementById('preview-bots').textContent,
+      blocked_today: document.getElementById('preview-blocks').textContent,
+      security_rating: document.getElementById('preview-rating').textContent,
+      last_updated: document.getElementById('last-updated').textContent
+    },
+    recent_events: logs
+  };
+  
+  // Convert to JSON string
+  const dataStr = JSON.stringify(dashboardData, null, 2);
+  
+  // Create a download link
+  const downloadLink = document.createElement('a');
+  downloadLink.setAttribute('href', 'data:text/json;charset=utf-8,' + encodeURIComponent(dataStr));
+  downloadLink.setAttribute('download', `aegis_dashboard_${moment().format('YYYY-MM-DD_HH-mm-ss')}.json`);
+  downloadLink.style.display = 'none';
+  
+  document.body.appendChild(downloadLink);
+  downloadLink.click();
+  document.body.removeChild(downloadLink);
+}
+
+// Initialize the dashboard
+document.addEventListener('DOMContentLoaded', function() {
+  // Initialize charts
+  initCharts();
+  
+  // Start polling for dashboard data
+  pollDashboard();
+  
+  // Set up refresh interval
+  fallbackInterval = setInterval(pollDashboard, 30000); // Refresh every 30 seconds
+  
+  // Add event listeners for buttons
+  document.getElementById('refresh-dashboard').addEventListener('click', pollDashboard);
+  document.getElementById('export-dashboard').addEventListener('click', exportDashboardData);
+  document.getElementById('simulate-attack').addEventListener('click', simulateAttack);
+  
+  // Add event listener for theme toggle
+  document.getElementById('theme-toggle').addEventListener('click', function() {
+    document.body.classList.toggle('light-theme');
+  });
+});
+</script>
+</section>
+  <footer>
+    &copy; 2025 AegisAI — Adaptive Shield Against AI Attacks
+  </footer>
+
+<style>
+.recent-events {margin-top:2rem;}
+.recent-events ul{list-style:none;padding:0;}
+.recent-events li{margin-bottom:0.5rem;color:#6fffe9;}
+.security-rating{margin-top:2rem;}
+.rating-bar{background:#232b3a;border-radius:8px;height:18px;width:100%;margin-bottom:0.5rem;overflow:hidden;}
+.rating-fill{background:#6fffe9;height:100%;}
+</style>
+  <script src="ai-detect.js"></script>
+</body>
+</html>

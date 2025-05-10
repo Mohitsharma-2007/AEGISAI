@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>AegisAI Attack Console</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="style.css">
+  <!-- Load our offline scripts -->
+  <script src="js/script-descriptions.js"></script>
+  <script src="js/attack-scripts.js"></script>
+  <script src="js/api-simulator.js"></script>
+  <script src="js/local-scripts.js"></script>
+  <script src="js/script-bridge.js"></script>
+  <script src="js/console-functions.js"></script>
+  <script src="js/console-ui.js"></script>
+  <script>
+    // Initialize script backend mode
+    window.useLocalScripts = true; // Default to using local scripts
+    
+    // Function to load available scripts from the backend
+    async function loadScriptsFromBackend() {
+      // Define our specific scripts
+      const specificScripts = {
+        'slowloris_attack': {
+          name: 'Slowloris DDoS Attack',
+          category: 'ddos',
+          description: 'Simulates a Slowloris attack that keeps connections open by sending partial HTTP requests'
+        },
+        'xss_payload_demo': {
+          name: 'XSS Payload Demo',
+          category: 'web',
+          description: 'Demonstrates Cross-Site Scripting (XSS) attacks with various payloads'
+        },
+        'csrf_attack_demo': {
+          name: 'CSRF Attack Demo',
+          category: 'web',
+          description: 'Demonstrates Cross-Site Request Forgery (CSRF) attacks against web forms'
+        },
+        'form_submitter': {
+          name: 'Form Submitter',
+          category: 'web',
+          description: 'Simulates automated form submission attacks'
+        },
+        'harmful_demo': {
+          name: 'XSS Attack Demo',
+          category: 'web',
+          description: 'Demonstrates harmful Cross-Site Scripting (XSS) attacks'
+        },
+        'port_scanner': {
+          name: 'Port Scanner',
+          category: 'recon',
+          description: 'Scans for open ports on a target system'
+        },
+        'directory_bruteforce': {
+          name: 'Directory Bruteforce',
+          category: 'recon',
+          description: 'Attempts to discover hidden directories on a web server'
+        },
+        'fake_login_bot': {
+          name: 'Fake Login Bot',
+          category: 'bot',
+          description: 'Simulates automated login attempts with credential stuffing'
+        },
+        'email_spam_demo': {
+          name: 'Email Spam Demo',
+          category: 'bot',
+          description: 'Demonstrates email spam attacks'
+        },
+        'brute_force_demo': {
+          name: 'Brute Force Demo',
+          category: 'bot',
+          description: 'Demonstrates brute force password attacks'
+        },
+        'ai_chatbot_demo': {
+          name: 'AI Chatbot Demo',
+          category: 'ai',
+          description: 'Demonstrates attacks against AI chatbots'
+        },
+        'langchain_demo': {
+          name: 'LangChain Agent Demo',
+          category: 'ai',
+          description: 'Demonstrates attacks against LangChain agents'
+        },
+        'openai_api_demo': {
+          name: 'OpenAI API Demo',
+          category: 'ai',
+          description: 'Demonstrates attacks against OpenAI APIs'
+        },
+        'anthropic_claude_demo': {
+          name: 'Anthropic Claude Demo',
+          category: 'ai',
+          description: 'Demonstrates attacks against Anthropic Claude'
+        },
+        'autogen_demo': {
+          name: 'Microsoft AutoGen Demo',
+          category: 'ai',
+          description: 'Demonstrates attacks against Microsoft AutoGen'
+        },
+        'scraper_demo': {
+          name: 'Web Scraper Demo',
+          category: 'bot',
+          description: 'Demonstrates web scraping attacks'
+        },
+        'selenium_bot_demo': {
+          name: 'Selenium Bot Demo',
+          category: 'bot',
+          description: 'Demonstrates browser automation attacks'
+        },
+        'captcha_bypass_demo': {
+          name: 'CAPTCHA Bypass Demo',
+          category: 'captcha',
+          description: 'Shows techniques to bypass CAPTCHA using third-party services'
+        },
+        'captcha_solver_demo': {
+          name: 'CAPTCHA Solver Demo',
+          category: 'captcha',
+          description: 'Demonstrates automated CAPTCHA solving'
+        }
+      };
+      
+      try {
+        // First try to use the direct API endpoint
+        const response = await fetch('http://localhost:5050/api/scripts');
+        if (!response.ok) {
+          throw new Error('Failed to load scripts from backend API');
+        }
+        
+        const scripts = await response.json();
+        console.log('Loaded scripts from backend API:', scripts);
+        
+        // Update the UI with available scripts
+        updateScriptSelect(scripts);
+        
+        // Set backend mode to true
+        window.useLocalScripts = false;
+        console.log('Using Python backend for scripts');
+        
+        // Show backend status
+        document.getElementById('backend-status').textContent = 'Python Backend: Connected';
+        document.getElementById('backend-status').style.color = '#6fffe9';
+      } catch (error) {
+        console.error('Error loading scripts from backend API:', error);
+        console.log('Using specific scripts...');
+        
+        // Use our specific scripts
+        updateScriptSelect(specificScripts);
+        
+        // Set backend mode to false
+        window.useLocalScripts = false;
+        console.log('Using specific scripts');
+        
+        // Show backend status
+        document.getElementById('backend-status').textContent = 'Using Local Scripts';
+        document.getElementById('backend-status').style.color = '#ff9e00';
+      }
+    }
+    
+    // Function to update the script select dropdown
+    function updateScriptSelect(scripts) {
+      const select = document.getElementById('bot-script-select');
+      if (!select) return;
+      
+      // Store current selection if any
+      const currentSelection = select.value;
+      
+      // Clear existing options
+      while (select.firstChild) {
+        select.removeChild(select.firstChild);
+      }
+      
+      // Group scripts by category
+      const categories = {};
+      for (const [scriptId, scriptInfo] of Object.entries(scripts)) {
+        const category = scriptInfo.category || 'other';
+        if (!categories[category]) {
+          categories[category] = [];
+        }
+        categories[category].push({ id: scriptId, ...scriptInfo });
+      }
+      
+      // Add options by category
+      const categoryNames = {
+        'ddos': 'DDoS Attacks',
+        'web': 'Web Attacks',
+        'recon': 'Reconnaissance',
+        'ai': 'AI/LLM Attacks',
+        'bot': 'Bot Attacks',
+        'captcha': 'CAPTCHA Attacks',
+        'other': 'Other Attacks'
+      };
+      
+      // Define the order of categories
+      const categoryOrder = ['ddos', 'web', 'recon', 'ai', 'bot', 'captcha', 'other'];
+      
+      // Add options in the specified order
+      for (const category of categoryOrder) {
+        if (categories[category] && categories[category].length > 0) {
+          const optgroup = document.createElement('optgroup');
+          optgroup.label = categoryNames[category] || category;
+          
+          // Sort scripts by name
+          categories[category].sort((a, b) => a.name.localeCompare(b.name));
+          
+          // Add options for this category
+          for (const script of categories[category]) {
+            const option = document.createElement('option');
+            option.value = script.id;
+            option.textContent = `${script.name} [Python]`;
+            optgroup.appendChild(option);
+          }
+          
+          select.appendChild(optgroup);
+        }
+      }
+      
+      // Try to restore previous selection
+      if (currentSelection) {
+        select.value = currentSelection;
+      }
+      
+      // If no selection, select the first option
+      if (!select.value && select.options.length > 0) {
+        select.selectedIndex = 0;
+      }
+      
+      // Trigger the change event to update the description
+      updateScriptDesc();
+    }
+    
+    // Load scripts when the page loads
+    document.addEventListener('DOMContentLoaded', function() {
+      // Add backend status element
+      const statusElement = document.createElement('div');
+      statusElement.id = 'backend-status';
+      statusElement.style.fontSize = '0.9em';
+      statusElement.style.marginTop = '0.5em';
+      statusElement.style.color = '#888';
+      statusElement.textContent = 'Python Backend: Connecting...';
+      
+      // Add it after the script description
+      const scriptDesc = document.getElementById('bot-script-desc');
+      if (scriptDesc && scriptDesc.parentNode) {
+        scriptDesc.parentNode.insertBefore(statusElement, scriptDesc.nextSibling);
+      }
+      
+      // Load scripts from backend
+      loadScriptsFromBackend();
+    });
+  </script>
+  <style>
+    body { background: #181f2a; color: #f8f8f8; font-family: 'Segoe UI',sans-serif; }
+    .console-container { max-width: 900px; margin: 2.5rem auto; background: #232b3a; border-radius: 13px; box-shadow: 0 4px 24px #0008; padding: 2.5rem 2rem; }
+    h2 { text-align: center; color: #6fffe9; margin-bottom: 1.7rem; }
+    #console-log { background: #111722; border-radius: 8px; padding: 1em; min-height: 300px; font-family: 'Fira Mono',monospace; font-size: 1.04em; overflow-y: auto; max-height: 400px; }
+    .log-entry { margin-bottom: 0.7em; }
+    .log-attack { color: #ff1744; }
+    .log-block { color: #6fffe9; }
+    .log-info { color: #ffd600; }
+    .log-ai { color: #00e676; }
+    .log-bot { color: #ff9100; }
+    .log-online { color: #00b0ff; }
+    .section-title { margin-top: 2.5em; color: #ffd600; }
+  </style>
+</head>
+<body>
+  <div class="console-container">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5em;">
+      <div>
+        <span style="font-size:1.1em;">
+          <b>Secure Browsing:</b>
+          <span id="secure-browsing-status" style="color:#ffd600;margin-left:0.5em;">OFF</span>
+          <span id="secure-browsing-icon" style="font-size:1.2em;margin-left:0.3em;display:none;">🔒</span>
+        </span>
+        <div id="detection-status" style="margin-top:0.5em;font-size:1.1em;">
+          <b>AEGIS-AI Status:</b>
+          <span id="aegis-status" style="color:#00ff00;margin-left:0.5em;">ACTIVE</span>
+          <span id="detection-speed" style="color:#6fffe9;margin-left:1em;font-size:0.9em;">Detection Speed: <b>< 1ms</b></span>
+        </div>
+      </div>
+      <div>
+        <button id="toggle-secure-browsing" class="cta" style="background:#ffd600;color:#232b3a;margin-bottom:0.5em;display:block;width:100%;">Enable Secure Browsing</button>
+        <button id="test-detection-speed" class="cta" style="background:#00b0ff;color:#232b3a;display:block;width:100%;">Test Detection Speed</button>
+      </div>
+    </div>
+    <h2>AegisAI Attack Console</h2>
+    <div id="console-log"></div>
+    <div style="margin-top:2em;">
+      <h3 class="section-title">Attack Scripts Console</h3>
+      <div id="online-attack-section">
+        <div style="margin-bottom:0.7em;max-width:480px;">
+  <input id="bot-script-search" type="text" placeholder="Search scripts..." style="width:100%;padding:0.6em 1em;border-radius:7px;border:1px solid #bbb;margin-bottom:0.5em;">
+  <select id="bot-script-select" size="10" style="width:100%;padding:0.7em 1em;border-radius:7px;font-size:1.04em;background:#232b3a;color:#ffd600;">
+    <optgroup label="DDoS Attacks">
+      <option value="http_flooder">HTTP Flooder [Local]</option>
+      <option value="slowloris_attack">Slowloris DDoS Attack [Local]</option>
+    </optgroup>
+    <optgroup label="Web Attacks">
+      <option value="sql_injection_demo">SQL Injection Demo [Local]</option>
+      <option value="xss_payload_demo">XSS Payload Demo [Local]</option>
+      <option value="csrf_attack_demo">CSRF Attack Demo [Local]</option>
+      <option value="form_submitter">Form Submitter [Local]</option>
+      <option value="harmful_demo">XSS Attack Demo [Local]</option>
+    </optgroup>
+    <optgroup label="Reconnaissance">
+      <option value="port_scanner">Port Scanner [Local]</option>
+      <option value="directory_bruteforce">Directory Bruteforce [Local]</option>
+    </optgroup>
+    <optgroup label="AI/LLM Attacks">
+      <option value="claude_captcha_bypass">Claude Captcha Bypass [Local]</option>
+      <option value="claude_probe">Claude Probe [Local]</option>
+      <option value="gpt_form_attack">GPT Form Attack [Local]</option>
+      <option value="gpt_probe">GPT Probe [Local]</option>
+      <option value="gemini_form_spam">Gemini Form Spam [Local]</option>
+      <option value="gemini_recon">Gemini Recon [Local]</option>
+      <option value="ai_chatbot_demo">AI Chatbot Demo [Local]</option>
+      <option value="llm_completion_demo">LLM Completion Demo [Local]</option>
+      <option value="torch_image_demo">Torch Image Demo [Local]</option>
+      <option value="bert_qa_demo">BERT QA Demo [Local]</option>
+      <option value="langchain_demo">LangChain Agent Demo [Local]</option>
+      <option value="huggingface_transformers_demo">Huggingface Transformers Demo [Local]</option>
+      <option value="openai_api_demo">OpenAI API Demo [Local]</option>
+      <option value="anthropic_claude_demo">Anthropic Claude Demo [Local]</option>
+      <option value="stable_diffusion_demo">Stable Diffusion Demo [Local]</option>
+      <option value="autogen_demo">Microsoft AutoGen Demo [Local]</option>
+    </optgroup>
+    <optgroup label="Bot Attacks">
+      <option value="fake_login_bot">Fake Login Bot [Local]</option>
+      <option value="email_spam_demo">Email Spam Demo [Local]</option>
+      <option value="brute_force_demo">Brute Force Demo [Local]</option>
+      <option value="scraper_demo">Web Scraper Demo [Local]</option>
+      <option value="selenium_bot_demo">Selenium Bot Demo [Local]</option>
+      <option value="captcha_bypass_demo">Captcha Bypass Demo [Local]</option>
+      <option value="captcha_solver_demo">Captcha Solver Demo [Local]</option>
+    </optgroup>
+  </select>
+  <div id="bot-script-desc" style="margin-top:0.6em;font-size:0.98em;color:#00b0ff;"></div>
+</div>
+<button id="run-bot-btn" onclick="runOnlineBotAttack()" class="cta" style="background:#00b0ff;color:#232b3a;min-width:220px;">Run Attack Script</button>
+        <span id="online-status" style="margin-left:1em;color:#00b0ff;"></span>
+      </div>
+    </div>
+  </div>
+  <script>
+    // Simulated log streaming (replace with SSE or WebSocket for real-time)
+    let logEl = document.getElementById('console-log');
+    function addLog(text, type, idx) {
+  const log = document.createElement('div');
+  log.className = 'log-entry ' + (type||'');
+  
+  // Check if the text contains detection time information
+  const hasDetectionTime = text.includes('ms:') || text.includes('<1ms');
+  
+  // If it's a block message with detection time, highlight the speed
+  if (type === 'block' && hasDetectionTime) {
+    // Extract the detection time if present
+    let detectionTime = '<1ms';
+    const timeMatch = text.match(/in\s+(\d+\.\d+ms|\<1ms)/);
+    if (timeMatch && timeMatch[1]) {
+      detectionTime = timeMatch[1];
+    }
+    
+    // Create a styled version of the text with highlighted detection time
+    const textParts = text.split(':');
+    const firstPart = textParts[0];
+    const restPart = textParts.slice(1).join(':');
+    
+    // Create the log content with styled elements
+    log.innerHTML = '';
+    
+    // Add the first part with detection time highlighted
+    const firstSpan = document.createElement('span');
+    if (detectionTime === '<1ms' || parseFloat(detectionTime) < 10) {
+      // Ultra-fast detection (under 10ms)
+      firstSpan.innerHTML = `${firstPart}: <span style="color:#00ff00;font-weight:bold;">[ULTRA-FAST: ${detectionTime}]</span>`;
+    } else if (parseFloat(detectionTime) < 50) {
+      // Fast detection (10-50ms)
+      firstSpan.innerHTML = `${firstPart}: <span style="color:#6fffe9;font-weight:bold;">[FAST: ${detectionTime}]</span>`;
+    } else {
+      // Normal detection (>50ms)
+      firstSpan.innerHTML = `${firstPart}: <span style="color:#ffd600;font-weight:bold;">[${detectionTime}]</span>`;
+    }
+    log.appendChild(firstSpan);
+    
+    // Add the rest of the text
+    const restSpan = document.createElement('span');
+    restSpan.textContent = restPart;
+    log.appendChild(restSpan);
+  } else {
+    // Regular log entry without special formatting
+    log.textContent = text;
+  }
+  
+  // Add forensics download button for blocked events
+  if(type === 'block') {
+    const btnBox = document.createElement('span');
+    btnBox.style = 'margin-left:1em;';
+    const jsonBtn = document.createElement('button');
+    jsonBtn.textContent = 'Download Forensics (JSON)';
+    jsonBtn.className = 'cta';
+    jsonBtn.style = 'background:#232b3a;color:#00b0ff;margin-right:0.5em;';
+    jsonBtn.onclick = function(){ downloadForensics(idx, 'json'); };
+    const csvBtn = document.createElement('button');
+    csvBtn.textContent = 'CSV';
+    csvBtn.className = 'cta';
+    csvBtn.style = 'background:#232b3a;color:#ffd600;';
+    csvBtn.onclick = function(){ downloadForensics(idx, 'csv'); };
+    btnBox.appendChild(jsonBtn);
+    btnBox.appendChild(csvBtn);
+    log.appendChild(btnBox);
+  }
+  
+  document.getElementById('console-log').appendChild(log);
+  document.getElementById('console-log').scrollTop = document.getElementById('console-log').scrollHeight;
+}
+
+async function downloadForensics(idx, format) {
+  const url = `/api/forensics/report?idx=${idx}&format=${format}`;
+  const res = await fetch(url);
+  if(format==='json') {
+    const data = await res.json();
+    const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'forensics_report.json';
+    document.body.appendChild(a); a.click(); setTimeout(()=>{document.body.removeChild(a)}, 200);
+  } else {
+    const text = await res.text();
+    const blob = new Blob([text], {type:'text/csv'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'forensics_report.csv';
+    document.body.appendChild(a); a.click(); setTimeout(()=>{document.body.removeChild(a)}, 200);
+  }
+}
+    // Simulate attack and defense logs
+    window.startAllAttacks = function() {
+      addLog('Starting all simulated attacks...', 'info');
+      setTimeout(()=>addLog('Bot-Attack-1 attacking...', 'bot'), 500);
+      setTimeout(()=>addLog('AegisAI blocked Bot-Attack-1!', 'block', 0), 1200);
+      setTimeout(()=>addLog('LLM-Attack-2 attacking...', 'ai'), 1700);
+      setTimeout(()=>addLog('AegisAI confused LLM-Attack-2!', 'block'), 2300);
+      setTimeout(()=>addLog('Scripted Bot-Attack-3 attacking...', 'bot'), 2600);
+      setTimeout(()=>addLog('AegisAI blocked Scripted Bot-Attack-3!', 'block'), 3200);
+      setTimeout(()=>addLog('All simulated attacks complete.', 'info'), 4000);
+    }
+    // Online bot attack simulation
+    // Script descriptions for UI (sync with backend)
+const scriptDescriptions = {
+  // DDoS Attacks
+  'http_flooder': 'Simulates an HTTP flood attack by sending multiple requests to a target server',
+  'slowloris_attack': 'Simulates a Slowloris attack that keeps connections open by sending partial HTTP requests',
+  
+  // Web Attacks
+  'sql_injection_demo': 'Demonstrates SQL injection attacks against web applications',
+  'xss_payload_demo': 'Demonstrates Cross-Site Scripting (XSS) attacks with various payloads',
+  'csrf_attack_demo': 'Demonstrates Cross-Site Request Forgery (CSRF) attacks against web forms',
+  'form_submitter': 'Simulates automated form submission attacks',
+  'harmful_demo': 'Demonstrates XSS attacks with various payloads and techniques',
+  
+  // Reconnaissance
+  'port_scanner': 'Scans for open ports on a target system',
+  'directory_bruteforce': 'Attempts to discover hidden directories on a web server',
+  
+  // AI/LLM Attacks
+  'claude_captcha_bypass': 'Demonstrates how Claude AI can be used to bypass CAPTCHA challenges',
+  'claude_probe': 'Tests Claude AI for vulnerabilities and information disclosure',
+  'gpt_form_attack': 'Uses GPT to generate malicious inputs for web forms',
+  'gpt_probe': 'Tests GPT models for vulnerabilities and information disclosure',
+  'gemini_form_spam': 'Uses Gemini AI to generate spam content for forms',
+  'gemini_recon': 'Uses Gemini AI for reconnaissance and information gathering',
+  
+  // Other Online Scripts
+  'scraper_demo': 'Web Scraper Demo',
+  'sql_injection_demo_online': 'SQLMap SQLi Demo',
+  'captcha_bypass_demo': 'Captcha Bypass Demo',
+  'fake_login_bot': 'Fake Login Bot',
+  'email_spam_demo': 'Email Spam Demo',
+  'brute_force_demo': 'Brute Force Demo',
+  'ai_chatbot_demo': 'AI Chatbot Demo',
+  'llm_completion_demo': 'LLM Completion Demo',
+  'torch_image_demo': 'Torch Image Demo',
+  'bert_qa_demo': 'BERT QA Demo',
+  'langchain_demo': 'LangChain Agent Demo',
+  'huggingface_transformers_demo': 'Huggingface Transformers Demo',
+  'openai_api_demo': 'OpenAI API Demo',
+  'anthropic_claude_demo': 'Anthropic Claude Demo',
+  'stable_diffusion_demo': 'Stable Diffusion Demo',
+  'selenium_bot_demo': 'Selenium Bot Demo',
+  'autogen_demo': 'Microsoft AutoGen Demo',
+  'captcha_solver_demo': 'Captcha Solver Demo'
+};
+
+const scriptSelect = document.getElementById('bot-script-select');
+const descBox = document.getElementById('bot-script-desc');
+const searchBox = document.getElementById('bot-script-search');
+function updateScriptDesc() {
+  const key = scriptSelect.value;
+  
+  // Try to get description from different sources in order of preference:
+  // 1. Script bridge
+  // 2. Window script descriptions
+  // 3. Local script descriptions variable
+  
+  let description = '';
+  
+  // 1. Try script bridge
+  if (window.scriptBridge && window.scriptBridge.SCRIPT_DESCRIPTIONS && 
+      window.scriptBridge.SCRIPT_DESCRIPTIONS[key]) {
+    description = window.scriptBridge.SCRIPT_DESCRIPTIONS[key];
+  }
+  // 2. Try window script descriptions
+  else if (window.scriptDescriptions && window.scriptDescriptions[key]) {
+    description = window.scriptDescriptions[key];
+  }
+  // 3. Try local script descriptions variable
+  else if (typeof scriptDescriptions !== 'undefined' && scriptDescriptions[key]) {
+    description = scriptDescriptions[key];
+  }
+  
+  descBox.textContent = description || 'No description available';
+}
+scriptSelect.onchange = updateScriptDesc;
+updateScriptDesc();
+searchBox.oninput = function() {
+  const q = this.value.toLowerCase();
+  for (let opt of scriptSelect.options) {
+    opt.style.display = q=='' || opt.text.toLowerCase().includes(q) ? '' : 'none';
+  }
+  // Auto-select first visible
+  for (let opt of scriptSelect.options) {
+    if(opt.style.display!=='none') { scriptSelect.value=opt.value; updateScriptDesc(); break; }
+  }
+  document.getElementById('error-details-box')?.remove();
+  document.getElementById('run-bot-btn').disabled = false;
+};
+
+scriptSelect.onchange = function() {
+  updateScriptDesc();
+  document.getElementById('error-details-box')?.remove();
+  document.getElementById('run-bot-btn').disabled = false;
+};
+
+window.runOnlineBotAttack = function() {
+  const scriptKey = scriptSelect.value;
+  addLog('Running online bot/AI/LLM attack ('+scriptKey+')...', 'online');
+  document.getElementById('online-status').textContent = 'Online attack running...';
+  fetch('http://localhost:5050/api/online-bot-attack', {
+    method:'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({script: scriptKey})
+  })
+    .then(r=>r.json()).then(j=>{
+      const runBtn = document.getElementById('run-bot-btn');
+      runBtn.disabled = false;
+      if(j.success && j.events) {
+        // Track log index for forensics download
+        let logIdx = window._logIndex || 0;
+        j.events.forEach(ev => {
+          addLog(ev, ev.includes('blocked') ? 'block' : 'online', ev.includes('blocked') ? logIdx : undefined);
+          logIdx++;
+        });
+        window._logIndex = logIdx;
+        document.getElementById('online-status').textContent = 'Online attack finished!';
+        // Show detailed block info if present
+        if(j.block_details) {
+          showBlockDetails(j.block_details);
+        } else {
+          document.getElementById('block-details-box')?.remove();
+        }
+        document.getElementById('error-details-box')?.remove();
+      } else {
+        if(j.error) {
+          showErrorDetails(j.error, j.script || 'unknown');
+          runBtn.disabled = true;
+        }
+        addLog('No attack events returned.', 'info');
+        document.getElementById('online-status').textContent = '';
+        document.getElementById('block-details-box')?.remove();
+      }
+    }).catch(()=>{
+      addLog('Error running online attack.', 'info');
+      document.getElementById('online-status').textContent = '';
+      document.getElementById('block-details-box')?.remove();
+      document.getElementById('error-details-box')?.remove();
+      runBtn.disabled = false;
+    });
+}
+
+function showErrorDetails(error, scriptKey) {
+  document.getElementById('error-details-box')?.remove();
+  const box = document.createElement('div');
+  box.id = 'error-details-box';
+  box.style = 'background:#2d1a1a;color:#ff5252;border:2px solid #ff5252;padding:1.2em 1.5em;margin-top:1.5em;border-radius:10px;max-width:700px;overflow-x:auto;white-space:pre-wrap;';
+  box.innerHTML = `<h4 style='margin-top:0;color:#ff5252;'>❌ Script Not Available</h4>
+    <b>Script:</b> ${scriptKey}<br>
+    <b>Error:</b> ${error}`;
+  document.getElementById('console-log').after(box);
+}
+
+
+function showBlockDetails(details) {
+  document.getElementById('block-details-box')?.remove();
+  const box = document.createElement('div');
+  box.id = 'block-details-box';
+  box.style = 'background:#1a2636;color:#ffd600;border:2px solid #ff5252;padding:1.2em 1.5em;margin-top:1.5em;border-radius:10px;max-width:700px;overflow-x:auto;white-space:pre-wrap;';
+  
+  // Determine attack type from block reason
+  let attackType = "Unknown";
+  let attackIcon = "🚫";
+  
+  if (details.block_reason.includes("AI/LLM/ML")) {
+    attackType = "AI/LLM Attack";
+    attackIcon = "🤖";
+  } else if (details.block_reason.includes("DDoS") || details.block_reason.includes("Flood")) {
+    attackType = "DDoS/Flood Attack";
+    attackIcon = "🌊";
+  } else if (details.block_reason.includes("Web attack")) {
+    attackType = "Web Attack";
+    attackIcon = "🕸️";
+  } else if (details.block_reason.includes("Reconnaissance")) {
+    attackType = "Reconnaissance Attack";
+    attackIcon = "🔍";
+  } else if (details.block_reason.includes("vulnerability")) {
+    attackType = "Vulnerability Exploit";
+    attackIcon = "🔓";
+  }
+  
+  box.innerHTML = `<h4 style='margin-top:0;color:#ff5252;'>${attackIcon} ${attackType} Blocked by AegisAI</h4>
+    <div style="display:flex;flex-wrap:wrap;gap:1em;">
+      <div style="flex:1;min-width:300px;">
+        <b>Script Name:</b> ${details.script_name}<br>
+        <b>Script Key:</b> ${details.script_key}<br>
+        <b>Filename:</b> ${details.filename}<br>
+        <b>URL:</b> ${details.url ? `<a href='${details.url}' target='_blank' style='color:#00b0ff;'>${details.url}</a>` : 'Local script'}<br>
+        <b>Block Reason:</b> <span style='color:#ff5252;'>${details.block_reason}</span><br>
+        <b>Detection Method:</b> ${details.how_identified}<br>
+      </div>
+      <div style="flex:1;min-width:300px;">
+        <b>Potential Impact:</b> <span style='color:#ff9100;'>High</span><br>
+        <b>Recommended Action:</b> <span style='color:#6fffe9;'>Block and Log</span><br>
+        <b>Detection Confidence:</b> <span style='color:#6fffe9;'>High</span><br>
+        <b>Detection Speed:</b> <span style='color:#6fffe9;font-weight:bold;'>${details.detection_time || '<1ms'}</span><br>
+        <b>Detection Time:</b> ${new Date().toLocaleTimeString()}<br>
+        <b>AEGIS-AI Status:</b> <span style='color:#6fffe9;'>Active - Protecting</span><br>
+      </div>
+    </div>
+    <div style="margin-top:1em;">
+      <b>Code Sample:</b><br>
+      <pre style='background:#101723;color:#fff;padding:0.7em 1em;border-radius:8px;font-size:0.97em;max-height:320px;overflow:auto;'>${escapeHtml(details.code_sample)}</pre>
+    </div>`;
+  document.getElementById('console-log').after(box);
+}
+function escapeHtml(str) {
+  return str.replace(/[&<>]/g, t => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[t]));
+}
+
+  // Secure Browsing toggle logic
+let secureBrowsing = false;
+const statusEl = document.getElementById('secure-browsing-status');
+const iconEl = document.getElementById('secure-browsing-icon');
+const aegisStatusEl = document.getElementById('aegis-status');
+const detectionSpeedEl = document.getElementById('detection-speed');
+
+document.getElementById('toggle-secure-browsing').onclick = function() {
+  fetch('http://localhost:5050/api/secure-browsing', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({enabled: !secureBrowsing})
+  }).then(r=>r.json()).then(j=>{
+    secureBrowsing = j.enabled;
+    statusEl.textContent = secureBrowsing ? 'ON' : 'OFF';
+    iconEl.style.display = secureBrowsing ? '' : 'none';
+    this.textContent = secureBrowsing ? 'Disable Secure Browsing' : 'Enable Secure Browsing';
+    statusEl.style.color = secureBrowsing ? '#00e676' : '#ffd600';
+  });
+};
+
+// Test detection speed function
+document.getElementById('test-detection-speed').onclick = function() {
+  // Update status to testing
+  aegisStatusEl.textContent = 'TESTING';
+  aegisStatusEl.style.color = '#ffd600';
+  detectionSpeedEl.innerHTML = 'Running speed test...';
+  
+  addLog('Starting AEGIS-AI detection speed test...', 'info');
+  
+  // Run multiple attack scripts in sequence to test detection speed
+  const testScripts = [
+    'http_flooder',
+    'sql_injection_demo',
+    'xss_payload_demo',
+    'port_scanner',
+    'claude_probe'
+  ];
+  
+  let totalDetectionTime = 0;
+  let detectionCount = 0;
+  let fastestDetection = 1000;
+  let slowestDetection = 0;
+  
+  // Function to run a single test
+  function runTest(scriptIndex) {
+    if (scriptIndex >= testScripts.length) {
+      // All tests completed
+      const avgTime = detectionCount > 0 ? totalDetectionTime / detectionCount : 0;
+      
+      // Update the detection speed display
+      if (fastestDetection < 1) {
+        detectionSpeedEl.innerHTML = `Detection Speed: <b style="color:#00ff00;"><1ms</b> (Avg: ${avgTime.toFixed(2)}ms)`;
+      } else {
+        detectionSpeedEl.innerHTML = `Detection Speed: <b style="color:#00ff00;">${fastestDetection.toFixed(2)}ms</b> (Avg: ${avgTime.toFixed(2)}ms)`;
+      }
+      
+      // Update status back to active
+      aegisStatusEl.textContent = 'ACTIVE';
+      aegisStatusEl.style.color = '#00ff00';
+      
+      addLog(`Speed test completed! Fastest detection: ${fastestDetection < 1 ? '<1' : fastestDetection.toFixed(2)}ms, Average: ${avgTime.toFixed(2)}ms`, 'info');
+      return;
+    }
+    
+    const scriptKey = testScripts[scriptIndex];
+    addLog(`Testing detection speed with script: ${scriptKey}`, 'info');
+    
+    // Run the script and measure detection time
+    fetch('http://localhost:5050/api/online-bot-attack', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({script: scriptKey})
+    })
+    .then(r => r.json())
+    .then(data => {
+      if (data.detection_time_ms) {
+        // Extract the numeric value from the detection time string
+        let detectionTime = data.detection_time_ms;
+        if (detectionTime === '<1ms') {
+          detectionTime = 0.5; // Approximate for sub-millisecond detection
+        } else {
+          detectionTime = parseFloat(detectionTime);
+        }
+        
+        // Update statistics
+        totalDetectionTime += detectionTime;
+        detectionCount++;
+        fastestDetection = Math.min(fastestDetection, detectionTime);
+        slowestDetection = Math.max(slowestDetection, detectionTime);
+        
+        // Update the detection speed display during testing
+        detectionSpeedEl.innerHTML = `Testing: <b style="color:#ffd600;">${detectionTime < 1 ? '<1' : detectionTime.toFixed(2)}ms</b>`;
+      }
+      
+      // Run the next test after a short delay
+      setTimeout(() => runTest(scriptIndex + 1), 500);
+    })
+    .catch(err => {
+      console.error('Error during speed test:', err);
+      addLog(`Error testing script ${scriptKey}: ${err}`, 'info');
+      
+      // Continue with next test
+      setTimeout(() => runTest(scriptIndex + 1), 500);
+    });
+  }
+  
+  // Start the tests
+  runTest(0);
+};
+</script>
+</body>
+</html>

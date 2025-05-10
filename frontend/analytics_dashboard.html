@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Security Analytics Dashboard - AegisAI</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="console.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      background: linear-gradient(135deg, #181f2a 0%, #263b5a 100%);
+      color: #f4f8fb;
+      font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
+      min-height: 100vh;
+    }
+    .dashboard-container {
+      max-width: 950px;
+      margin: 2.5em auto;
+      background: rgba(35,43,58,0.95);
+      border-radius: 18px;
+      padding: 2.2em 2.5em;
+      box-shadow: 0 6px 32px #0006, 0 1.5px 0 #00bcd4 inset;
+      border: 1.5px solid #24364d;
+    }
+    h2 {
+      color: #00bcd4;
+      letter-spacing: 1.5px;
+      font-weight: 700;
+      margin-bottom: 0.7em;
+      text-shadow: 0 2px 12px #00bcd455;
+    }
+    .charts-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 2em;
+      margin-bottom: 2em;
+    }
+    .chart-box {
+      background: linear-gradient(120deg, #232b3a 60%, #00bcd4 120%);
+      border-radius: 14px;
+      padding: 1.5em 1.5em 2em 1.5em;
+      flex: 1 1 350px;
+      box-shadow: 0 2px 18px #00bcd422;
+      border: 1.5px solid #00bcd4;
+      min-width: 320px;
+    }
+    .table-box {
+      background: rgba(29,37,53,0.96);
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 2px 14px #00bcd422;
+      padding: 1em;
+      margin-top: 2em;
+    }
+    table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      margin-top: 0;
+    }
+    th, td {
+      padding: 0.8em 1.2em;
+      border-bottom: 1.5px solid #27334a;
+      text-align: left;
+      font-size: 1.08em;
+    }
+    th {
+      background: linear-gradient(90deg, #00bcd4 0%, #64ffda 100%);
+      color: #232b3a;
+      font-weight: 600;
+      border: none;
+      letter-spacing: 0.5px;
+    }
+    tr:last-child td {
+      border-bottom: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="dashboard-container">
+    <h2>Security Analytics Dashboard</h2>
+    <div class="charts-row">
+      <div class="chart-box">
+        <canvas id="attacksChart"></canvas>
+      </div>
+      <div class="chart-box">
+        <canvas id="blocksChart"></canvas>
+      </div>
+    </div>
+    <div class="charts-row">
+      <div class="chart-box">
+        <canvas id="scriptUsageChart"></canvas>
+      </div>
+      <div class="chart-box">
+        <canvas id="honeypotChart"></canvas>
+      </div>
+    </div>
+    <div class="table-box">
+      <h3>Top Attacker IPs</h3>
+      <table id="ip-table">
+        <thead><tr><th>IP Address</th><th>Count</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+  <script>
+    async function fetchAnalytics() {
+      const res = await fetch('/api/analytics');
+      const data = await res.json();
+      renderCharts(data);
+      renderIPTable(data.top_ips);
+    }
+    function renderCharts(data) {
+      // Attacks per day
+      new Chart(document.getElementById('attacksChart').getContext('2d'), {
+        type: 'line',
+        data: {
+          labels: Object.keys(data.attacks_per_day),
+          datasets: [{
+            label: 'Attacks per Day',
+            data: Object.values(data.attacks_per_day),
+            borderColor: '#00b0ff',
+            backgroundColor: 'rgba(0,176,255,0.1)',
+            fill: true
+          }]
+        },
+        options: { plugins: { legend: { labels: { color: '#eaf6ff' } } }, scales: { x: { ticks: { color: '#eaf6ff' } }, y: { ticks: { color: '#eaf6ff' } } } }
+      });
+      // Blocks per day
+      new Chart(document.getElementById('blocksChart').getContext('2d'), {
+        type: 'line',
+        data: {
+          labels: Object.keys(data.blocks_per_day),
+          datasets: [{
+            label: 'Blocks per Day',
+            data: Object.values(data.blocks_per_day),
+            borderColor: '#ff5252',
+            backgroundColor: 'rgba(255,82,82,0.12)',
+            fill: true
+          }]
+        },
+        options: { plugins: { legend: { labels: { color: '#eaf6ff' } } }, scales: { x: { ticks: { color: '#eaf6ff' } }, y: { ticks: { color: '#eaf6ff' } } } }
+      });
+      // Script usage
+      new Chart(document.getElementById('scriptUsageChart').getContext('2d'), {
+        type: 'bar',
+        data: {
+          labels: Object.keys(data.script_usage),
+          datasets: [{
+            label: 'Script Usage',
+            data: Object.values(data.script_usage),
+            backgroundColor: '#ffd600',
+            borderColor: '#bfa700',
+            borderWidth: 1
+          }]
+        },
+        options: { plugins: { legend: { labels: { color: '#eaf6ff' } } }, scales: { x: { ticks: { color: '#eaf6ff' } }, y: { ticks: { color: '#eaf6ff' } } } }
+      });
+      // Honeypot activations
+      new Chart(document.getElementById('honeypotChart').getContext('2d'), {
+        type: 'bar',
+        data: {
+          labels: Object.keys(data.honeypot_per_day),
+          datasets: [{
+            label: 'Honeypot Activations',
+            data: Object.values(data.honeypot_per_day),
+            backgroundColor: '#00e676',
+            borderColor: '#009f4d',
+            borderWidth: 1
+          }]
+        },
+        options: { plugins: { legend: { labels: { color: '#eaf6ff' } } }, scales: { x: { ticks: { color: '#eaf6ff' } }, y: { ticks: { color: '#eaf6ff' } } } }
+      });
+    }
+    function renderIPTable(top_ips) {
+      const tbody = document.querySelector('#ip-table tbody');
+      tbody.innerHTML = '';
+      for(const [ip, count] of top_ips) {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${ip}</td><td>${count}</td>`;
+        tbody.appendChild(tr);
+      }
+    }
+    window.onload = fetchAnalytics;
+  </script>
+</body>
+</html>

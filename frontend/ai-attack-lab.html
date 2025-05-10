@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>AI Attack Simulation Lab</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    body { background: #181f2a; color: #fff; font-family: 'Segoe UI',sans-serif; }
+    .container { max-width: 850px; margin: 2em auto; background: #212c3b; border-radius: 16px; box-shadow: 0 0 16px #000a; padding: 2.5em 2em; }
+    h1 { text-align: center; color: #ff6f91; }
+    .desc { text-align: center; color: #b5b5b5; margin-bottom: 2em; }
+    .attack-list { margin: 2em 0; max-height: 500px; overflow-y: auto; border-radius: 10px; border: 1px solid #222; background: #202737; }
+    .attack-item { background: #232b3a; border-radius: 8px; margin: 0.4em 0; padding: 0.7em 1em; display: flex; align-items: center; font-size: 0.98em; }
+    .attack-title { font-weight: bold; color: #6fffe9; flex: 0 0 200px; min-width: 120px; max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; cursor: pointer; }
+    .attack-desc { color: #b5b5b5; margin: 0 1em 0 0.5em; flex: 1 1 40%; min-width: 80px; max-width: 360px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; cursor: pointer; }
+    .attack-desc { color: #b5b5b5; margin: 0 1em 0 0.5em; flex: 1 1 40%; min-width: 80px; max-width: 360px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .attack-btn { background: #0e8cf7; color: #fff; border: none; border-radius: 5px; padding: 0.4em 1.2em; font-weight: bold; cursor: pointer; margin-left: 0.5em; font-size: 0.98em; }
+    .attack-btn:disabled { background: #444; cursor: not-allowed; }
+    .result-log { background: #181f2a; border-radius: 8px; padding: 1em; color: #fff; margin-top: 1em; min-height: 80px; }
+    .success { color: #00e676; }
+    .fail { color: #ff1744; }
+    .ai-icon { font-size: 1.2em; margin-right: 0.5em; }
+  </style>
+</head>
+<body>
+  <a href="index.html" style="display:inline-block;margin:1.5em 0 0 2em;text-decoration:none;"><button style="background:#232b3a;color:#6fffe9;font-weight:bold;border:none;border-radius:7px;padding:0.7em 1.6em;font-size:1em;cursor:pointer;box-shadow:0 2px 8px #0002;">← Back</button></a>
+  <div class="container">
+    <h1>🤖 AI Attack Simulation Lab</h1>
+    <div class="desc">
+      Try to attack the Aegis AI Security System using prebuilt AI/LLM attack scripts.<br>
+      <b>Each attack will be automatically detected and blocked by Aegis AI!</b>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.2em;">
+      <label for="attack-category" style="color:#6fffe9;font-weight:bold;">Category:</label>
+      <select id="attack-category" style="background:#232b3a;color:#fff;border-radius:5px;padding:0.4em 1em;font-size:1em;">
+        <option value="all">All</option>
+        <option value="Prompt Injection">Prompt Injection</option>
+        <option value="Encoding">Encoding</option>
+        <option value="Browser">Browser</option>
+        <option value="Adversarial">Adversarial</option>
+        <option value="XSS/Injection">XSS/Injection</option>
+        <option value="Other">Other</option>
+      </select>
+    </div>
+    <div class="attack-list" id="attack-list"></div>
+    <div class="result-log" id="result-log">Select an attack above to simulate.</div>
+    <button id="export-log-btn" style="margin-top:1em;background:#6fffe9;color:#232b3a;font-weight:bold;border:none;border-radius:7px;padding:0.6em 1.4em;font-size:1em;cursor:pointer;">Export Logs</button>
+    <div style="margin-top:2em;">
+      <canvas id="result-chart" width="700" height="260" style="background:#232b3a;border-radius:8px;"></canvas>
+    </div>
+  </div>
+  <script src="ai-attack-lab.js"></script>
+</body>
+</html>

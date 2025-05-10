@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Honeypot Trap Dashboard - AegisAI</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="console.css">
+  <style>
+    body {
+      background: linear-gradient(135deg, #181f2a 0%, #263b5a 100%);
+      color: #f4f8fb;
+      font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
+      min-height: 100vh;
+    }
+    .dashboard-container {
+      max-width: 950px;
+      margin: 2.5em auto;
+      background: rgba(35,43,58,0.95);
+      border-radius: 18px;
+      padding: 2.2em 2.5em;
+      box-shadow: 0 6px 32px #0006, 0 1.5px 0 #00bcd4 inset;
+      border: 1.5px solid #24364d;
+    }
+    h2 {
+      color: #ffd600;
+      letter-spacing: 1.5px;
+      font-weight: 700;
+      margin-bottom: 0.7em;
+      text-shadow: 0 2px 12px #ffd60055;
+    }
+    table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      margin-top: 1.2em;
+      background: rgba(29,37,53,0.96);
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 2px 14px #ffd60022;
+    }
+    th, td {
+      padding: 0.8em 1.2em;
+      border-bottom: 1.5px solid #27334a;
+      text-align: left;
+      font-size: 1.08em;
+    }
+    th {
+      background: linear-gradient(90deg, #ffd600 0%, #ffb300 100%);
+      color: #232b3a;
+      font-weight: 600;
+      border: none;
+      letter-spacing: 0.5px;
+    }
+    tr:last-child td {
+      border-bottom: none;
+    }
+    .status-active {
+      color: #00e676;
+      font-weight: bold;
+      text-shadow: 0 1px 8px #00e67644;
+    }
+    .status-inactive {
+      color: #ff5252;
+      font-weight: bold;
+      text-shadow: 0 1px 8px #ff525244;
+    }
+    .export-btn {
+      background: linear-gradient(90deg, #ffd600 0%, #ffb300 100%);
+      color: #232b3a;
+      border: none;
+      padding: 0.6em 1.3em;
+      border-radius: 7px;
+      cursor: pointer;
+      margin-right: 0.5em;
+      font-weight: 600;
+      box-shadow: 0 2px 12px #ffd60022;
+      transition: background 0.2s, color 0.2s;
+    }
+    .export-btn:hover {
+      background: linear-gradient(90deg, #ffe066 0%, #ffd600 100%);
+      color: #181f2a;
+    }
+    .filter-row {
+      margin-bottom: 1.5em;
+      display: flex;
+      gap: 1em;
+      align-items: center;
+      background: rgba(0,188,212,0.08);
+      padding: 0.8em 1.2em;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px #00bcd422;
+    }
+    .filter-label {
+      color: #00bcd4;
+      font-weight: 600;
+      letter-spacing: 0.2px;
+    }
+    .filter-input, .filter-select {
+      padding: 0.6em 1.1em;
+      border-radius: 7px;
+      border: 1.5px solid #ffd600;
+      background: #232b3a;
+      color: #f4f8fb;
+      font-size: 1em;
+      transition: border 0.2s;
+    }
+    .filter-input:focus, .filter-select:focus {
+      border: 1.5px solid #00bcd4;
+    }
+    #no-records {
+      color: #ff5252;
+      font-size: 1.1em;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="dashboard-container">
+    <h2>Honeypot Trap Activations</h2>
+    <div class="filter-row">
+      <label>Trap Name:
+        <select id="trap-filter">
+          <option value="">All</option>
+          <option value="Honeypot Field">Honeypot Field</option>
+          <option value="Randomized CAPTCHA">Randomized CAPTCHA</option>
+          <option value="Behavior Puzzle">Behavior Puzzle</option>
+        </select>
+      </label>
+      <label>Date: <input type="date" id="date-filter"></label>
+      <button class="export-btn" onclick="exportRecords('csv')">Export CSV</button>
+      <button class="export-btn" onclick="exportRecords('json')">Export JSON</button>
+    </div>
+    <table id="honeypot-table">
+      <thead>
+        <tr>
+          <th>Timestamp</th>
+          <th>IP</th>
+          <th>Trap Name</th>
+          <th>Payload</th>
+          <th>Details</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+    <div id="no-records" style="margin-top:2em;color:#ff5252;display:none;">No honeypot activations found for selected filters.</div>
+  </div>
+  <script>
+    async function fetchHoneypotRecords() {
+      const trap = document.getElementById('trap-filter').value;
+      const date = document.getElementById('date-filter').value;
+      let url = '/api/honeypot/records';
+      let params = [];
+      if(trap) params.push('trap_name='+encodeURIComponent(trap));
+      if(date) params.push('date='+encodeURIComponent(date));
+      if(params.length) url += '?' + params.join('&');
+      const res = await fetch(url);
+      const data = await res.json();
+      renderTable(data.records);
+      window._honeypotRecords = data.records;
+    }
+    function renderTable(records) {
+      const tbody = document.querySelector('#honeypot-table tbody');
+      tbody.innerHTML = '';
+      if(!records.length) {
+        document.getElementById('no-records').style.display = '';
+        return;
+      }
+      document.getElementById('no-records').style.display = 'none';
+      for(const rec of records) {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${rec.timestamp}</td><td>${rec.ip}</td><td>${rec.trap_name}</td><td>${(rec.payload||'').toString().slice(0,60)}</td><td>${typeof rec.details === 'object' ? JSON.stringify(rec.details) : rec.details}</td>`;
+        tbody.appendChild(tr);
+      }
+    }
+    document.getElementById('trap-filter').onchange = fetchHoneypotRecords;
+    document.getElementById('date-filter').onchange = fetchHoneypotRecords;
+    window.onload = fetchHoneypotRecords;
+    function exportRecords(type) {
+      const records = window._honeypotRecords || [];
+      if(type === 'csv') {
+        let csv = 'Timestamp,IP,Trap Name,Payload,Details\n';
+        for(const r of records) {
+          csv += `"${r.timestamp}","${r.ip}","${r.trap_name}","${(r.payload||'').replace(/"/g,'""')}","${typeof r.details==='object'?JSON.stringify(r.details):r.details}"
+`;
+        }
+        downloadFile(csv, 'honeypot_activations.csv', 'text/csv');
+      } else {
+        downloadFile(JSON.stringify(records, null, 2), 'honeypot_activations.json', 'application/json');
+      }
+    }
+    function downloadFile(content, filename, mime) {
+      const blob = new Blob([content], {type: mime});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(()=>{ document.body.removeChild(a); URL.revokeObjectURL(url); }, 200);
+    }
+  </script>
+</body>
+</html>

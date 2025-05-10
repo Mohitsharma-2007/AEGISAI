@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Request a Demo | AegisAI</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body { background: #181f2a; color: #f8f8f8; font-family: 'Segoe UI',sans-serif; }
+    .demo-container { max-width: 430px; margin: 3rem auto; background: #232b3a; border-radius: 13px; box-shadow: 0 4px 24px #0008; padding: 2.5rem 2rem; }
+    h2 { text-align: center; color: #6fffe9; margin-bottom: 1.7rem; }
+    label { display: block; margin: 1.1em 0 0.3em 0; font-weight: 500; }
+    input, textarea { width: 100%; padding: 0.7em; border-radius: 8px; border: none; margin-bottom: 1em; background: #1a2233; color: #fff; font-size: 1em; }
+    input[type=submit] { background: #6fffe9; color: #232b3a; font-weight: bold; cursor: pointer; transition: background 0.2s; }
+    input[type=submit]:hover { background: #00e676; }
+    .success, .error { text-align: center; margin-top: 1em; font-size: 1.1em; }
+    .success { color: #00e676; }
+    .error { color: #ff1744; }
+  </style>
+</head>
+<body>
+  <div class="demo-container">
+    <h2>Request a Demo</h2>
+    <form id="demoForm">
+      <label for="name">Your Name</label>
+      <input type="text" id="name" name="name" required>
+      <label for="email">Your Email</label>
+      <input type="email" id="email" name="email" required>
+      <label for="details">Demo Details</label>
+      <textarea id="details" name="details" rows="5" required></textarea>
+      <input type="submit" value="Request Demo">
+    </form>
+    <div id="formStatus"></div>
+  </div>
+  <script>
+    document.getElementById('demoForm').onsubmit = async function(e) {
+      e.preventDefault();
+      const status = document.getElementById('formStatus');
+      status.textContent = 'Sending...';
+      status.className = '';
+      const data = {
+        name: document.getElementById('name').value,
+        email: document.getElementById('email').value,
+        details: document.getElementById('details').value
+      };
+      try {
+        const res = await fetch('http://localhost:5050/api/request-demo', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+        const json = await res.json();
+        if(json.success) {
+          status.textContent = 'Your demo request has been sent!';
+          status.className = 'success';
+          document.getElementById('demoForm').reset();
+        } else {
+          status.textContent = 'Failed to send. Please try again.';
+          status.className = 'error';
+        }
+      } catch(err) {
+        status.textContent = 'Error sending request.';
+        status.className = 'error';
+      }
+    };
+  </script>
+</body>
+</html>
